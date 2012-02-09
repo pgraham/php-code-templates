@@ -1,0 +1,19 @@
+This is a template with an if statement nested inside of an if statement.
+
+  ${if:value1}
+
+    ${if:value2}
+      value1 and value2
+    ${else}
+      value1 and not value2
+    ${fi}
+
+  ${else}
+
+    ${if:value2}
+      not value1 and value2
+    ${else}
+      not value1 and not value2
+    ${fi}
+
+  ${fi}

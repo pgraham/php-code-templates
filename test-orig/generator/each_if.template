@@ -1,0 +1,33 @@
+This is a template that contains each statements of various forms with various
+forms of nested if statements.
+
+  ${each: array_val AS val}
+    ${if:val}
+      Value is true
+    ${else}
+      Value if false
+    ${fi}
+  ${done}
+
+  ${each: array_indexed AS val}
+    ${val[id]}
+    ${if:val[cond]}
+      Value condition if true
+    ${else}
+      Value condition is false
+    ${fi}
+  ${done}
+
+  ${each: array_complex AS val}
+    ${val[id]}
+    ${if:val[switch] = val1}
+      ${val[output]}
+    ${elseif:val[switch] = val2}
+      ${val[output]}
+    ${elseif:val[switch] = val3}
+      ${val[output]}
+    ${elseif:val[switch] = val4}
+      ${val[output]}
+    ${fi}
+  ${done}
+

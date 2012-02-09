@@ -1,0 +1,8 @@
+This is a template with an if statement nested inside of an each statement.
+
+  Property firstProp has a satisfactory condition 1
+
+  Property twoProp has a satisfactory condition 2
+
+  Property threeProp has no satisfactory condition
+

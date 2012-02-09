@@ -1,0 +1,7 @@
+This is a sample template that contains a simple if substitution.
+If a value named boolval is present and equal to true then there
+will be a message beneath this explanation.
+
+  ${if:boolval}
+    I was included conditionally!
+  ${fi}

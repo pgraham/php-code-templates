@@ -1,0 +1,6 @@
+This is a sample template with simple substitutions.
+
+This line contains an inline substitution: ${sub1}
+This line contains two substitutions: ${sub2} ${sub3}
+The following line contains a value on its own
+${sub1}

@@ -1,0 +1,14 @@
+This is a sample template that contains various forms of join substitutions.
+
+This line contains a join with ',' as the glue: ${join:joined:,}
+This line contains a join with ' ' as the glue: ${join:joined: }
+
+${if:cond}
+  This is a line containing a join nested in an if statement: ${join:joined: }
+${fi}
+
+${if:cond}
+  This is a line containing a join nested in an if statement: ${join:joined: }
+${else}
+  The condition was not true
+${fi}

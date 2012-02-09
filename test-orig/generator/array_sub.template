@@ -1,0 +1,7 @@
+This is a template that includes an array value substitution.
+
+This is an inline substitution: ${val[id]}
+
+A substitution on its own line follows:
+
+${val[name]}

@@ -1,0 +1,7 @@
+This is a sample template that contains a simple if substitution.
+If a value named value is present and equal to 'goodone' then there
+will be a message beneath this explanation.
+
+  ${if:value=goodone}
+    I was included conditionally!
+  ${fi}

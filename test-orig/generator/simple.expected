@@ -1,0 +1,6 @@
+This is a sample template with simple substitutions.
+
+This line contains an inline substitution: val1
+This line contains two substitutions: val2 val3
+The following line contains a value on its own
+val1

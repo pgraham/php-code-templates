@@ -1,0 +1,13 @@
+This is a template with an if statement nested inside of an each statement.
+
+  ${each:props as prop}
+
+    ${if:prop[cond1]}
+      Property ${prop[id]} has a satisfactory condition 1
+    ${elseif:prop[cond2]}
+      Property ${prop[id]} has a satisfactory condition 2
+    ${else}
+      Property ${prop[id]} has no satisfactory condition
+    ${fi}
+
+  ${done}

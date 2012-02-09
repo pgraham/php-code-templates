@@ -1,0 +1,12 @@
+This is a sample template that contains a simple if, elseif, else substitution.
+If a value named goodone is present and equal to true then there
+will be a fun message. If the value is equal to 'goodone' then there
+will be a weird message. Otherwise there will be a serious message.
+
+  ${if:goodone}
+    OMG if statements fo lyfe!
+  ${elseif:goodone=goodone}
+    OY, where my BBQ at VANIER WHAAAAAAAAAAT!!!!!!!!!!
+  ${else}
+    This is the else condition
+  ${fi}
