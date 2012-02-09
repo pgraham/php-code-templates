@@ -21,16 +21,6 @@ namespace pct;
  */
 class CodeBlockParser {
 
-  const DONE_REGEX     = '/^[\t ]*\$\{done\}/';
-  const EACH_REGEX     = '/^([\t ]*)\$\{each:([^\}]+)\}/';
-  const ELSE_REGEX     = '/^([\t ]*)\$\{else\}$/';
-  const ELSEIF_REGEX   = '/^([\t ]*)\$\{elseif:([^\}]+)\}$/';
-  const FI_REGEX       = '/^([\t ]*)\$\{fi\}$/';
-  const IF_REGEX       = '/^([\t ]*)\$\{if:([^\}]+)\}$/';
-  const JOIN_REGEX     = '/\$\{join:([^:]+):([^\}]+)\}/';
-  const JSON_REGEX     = '/\$\{json:([^\}]+)\}/';
-  const TAG_REGEX      = '/\$\{([^\}]+)}/';
-
   private static $_NUM_IFS = 0;
 
   /**

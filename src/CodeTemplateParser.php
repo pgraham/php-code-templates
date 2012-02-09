@@ -22,6 +22,13 @@ namespace pct;
  */
 class CodeTemplateParser {
 
+  const DONE_RE   = '/^[\t ]*\$\{done\}/';
+  const EACH_RE   = '/^([\t ]*)\$\{each:([^\}]+)\}/';
+  const ELSE_RE   = '/^([\t ]*)\$\{else\}$/';
+  const ELSEIF_RE = '/^([\t ]*)\$\{elseif:([^\}]+)\}$/';
+  const FI_RE     = '/^([\t ]*)\$\{fi\}$/';
+  const IF_RE     = '/^([\t ]*)\$\{if:([^\}]+)\}$/';
+
   /**
    * Parse the given code and populate the given CodeTemplate.
    *
@@ -30,7 +37,40 @@ class CodeTemplateParser {
    */
   public function parse($code) {
     $template = new CodeTemplate();
-    $template->setCode($code);
+
+    $lines = explode("\n", $code);
+
+    // Current nested chain of CompositeBlocks
+    $blockStack = array( $template );
+
+    // The current CodeBlock to which CodeLines are being added.
+    $curBlock = null;
+
+    $lineNum = 1;
+    foreach ($lines AS $line) {
+
+      if (preg_match(self::IF_RE, $line)) {
+      } else if (preg_match(self::ELSEIF_RE, $line)) {
+      } else if (preg_match(self::ELSE_RE, $line)) {
+      } else if (preg_match(self::FI_RE, $line)) {
+      } else if (preg_match(self::EACH_RE, $line)) {
+      } else if (preg_match(self::DONE_RE, $line)) {
+      } else {
+        if ($curBlock === null) {
+          $curBlock = new CodeBlock();
+
+          // Add the new code block to the head of block stack
+          $headBlock = end($blockStack);
+          $headBlock->addBlock($curBlock);
+        }
+
+        $codeLine = new CodeLine($line, $lineNum);
+        $curBlock->addLine($codeLine);
+      }
+
+      $lineNum++;
+    }
+
     return $template;
   }
 }

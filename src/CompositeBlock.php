@@ -15,17 +15,16 @@
 namespace pct;
 
 /**
- * This class encapsulates a parsed code template.
+ * Block implementation that consists solely of child Blocks.  Children can be
+ * either CodeBlocks or CompositeBlocks.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class CodeTemplate extends CompositeBlock {
+abstract class CompositeBlock implements Block {
 
-  public function forValues(array $values) {
-    $substituted = array();
-    foreach ($this->_blocks AS $block) {
-      $substituted[] = $block->forValues($values);
-    }
-    return implode("\n", $substituted);
+  protected $_blocks = array();
+
+  public function addBlock(Block $block) {
+    $this->_blocks[] = $block;
   }
 }

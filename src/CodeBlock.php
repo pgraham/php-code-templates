@@ -19,19 +19,24 @@ namespace pct;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-abstract class CodeBlock {
+class CodeBlock implements Block {
+
+  private $_lines = array();
+
+  public function addLine(CodeLine $line) {
+    $this->_lines[] = $line;
+  }
+
+  public function forValues(array $values) {
+    $substituted = array();
+    foreach ($this->_lines AS $line) {
+      $substituted[] = $line->forValues($values);
+    }
+    return implode("\n", $substituted);
+  }
 
   /* The code that is output if the expression for this clause is satisfied */
   protected $_code;
-
-  /* The each substitution tags */
-  protected $_eaches = Array();
-
-  /* The template's if blocks */
-  protected $_ifs = Array();
-
-  /* The base indentation level for the code block. */
-  protected $_indent;
 
   /* The substitution tags defined in the CodeBlock */
   protected $_tags = array();
@@ -41,35 +46,6 @@ abstract class CodeBlock {
 
   /* The JSON substitution tags */
   protected $_jsons = array();
-
-  /**
-   * Constructor. Set the indentation level of the block.
-   *
-   * @param string $indent String consisting of the indentation for the code
-   *   block when output.  Any tab characters will be replace with 2 space
-   *   characters.
-   */
-  public function __construct($indent) {
-    $this->_indent = str_replace("\t", '  ', $indent);
-  }
-
-  /**
-   * Add an each to the template.
-   *
-   * @param EachBlock $each
-   */
-  public function addEach($each) {
-    $this->_eaches[] = $each;
-  }
-
-  /**
-   * Add an if block to the template.
-   *
-   * @param IfBlock $ifBlock Encapsulated if block.
-   */
-  public function addIf(IfBlock $ifBlock) {
-    $this->_ifs[] = $ifBlock;
-  }
 
   /**
    * Add a join to the template.
@@ -126,33 +102,7 @@ abstract class CodeBlock {
    * @param array $values The values to substitute into the code block.
    * @return string The resolved code block.
    */
-  public function forValues(array $values, $code = null) {
-    if ($code === null) {
-      $code = $this->_code;
-    }
-
-    // Do the if and each replacements first since the if code may contain other
-    // substitutions
-    if (count($this->_ifs) > 0) {
-      // The if statements should have been added in an order that will
-      // make it possible to loop through the array once with nested ifs
-      // already substituted in by the time they are reached
-      foreach ($this->_ifs AS $ifBlock) {
-        $toReplace    = "\${if{$ifBlock->getId()}}";
-        $replacement = $ifBlock->forValues($values);
-
-        $code = str_replace($toReplace, $replacement, $code);
-      }
-    }
-
-    if (count($this->_eaches) > 0) {
-      foreach ($this->_eaches AS $eachBlock) {
-        $toReplace = $eachBlock->getTag();
-        $replacement = $eachBlock->forValues($values);
-        
-        $code = str_replace($toReplace, $replacement, $code);
-      }
-    }
+  public function _forValues(array $values, $code = null) {
 
     $toReplace = array();
     $replacements = array();
