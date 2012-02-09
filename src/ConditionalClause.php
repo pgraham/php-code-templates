@@ -12,7 +12,7 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace reed\generator;
+namespace pct;
 
 /**
  * Base class for IfBlock clauses that are conditionally output based on the

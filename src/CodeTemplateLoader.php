@@ -12,9 +12,9 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace reed\generator;
+namespace pct;
 
-use \reed\Exception;
+use \Exception;
 
 /**
  * This class loads a PHP template into which it substitutes given values.

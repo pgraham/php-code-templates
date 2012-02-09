@@ -12,9 +12,9 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace reed\generator;
+namespace pct;
 
-use \reed\Exception;
+use \Exception;
 
 /**
  * This class parses the ${each...} substitution tags from a code template and

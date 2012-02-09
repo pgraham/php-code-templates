@@ -12,7 +12,7 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace reed\generator;
+namespace pct;
 
 /**
  * This class encapsulates an if-block in a code template.  An if-block
