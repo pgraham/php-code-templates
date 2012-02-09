@@ -1,7 +1,7 @@
 <?php
 /**
  * =============================================================================
- * Copyright (c) 2010, Philip Graham
+ * Copyright (c) 2012, Philip Graham
  * All rights reserved.
  *
  * This file is part of php-code-templates and is licensed by the Copyright
