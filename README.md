@@ -61,6 +61,10 @@ using the substitution value with name `<name>`
 
 ### Example
 
+This example is portion of the template used to create a persister object for
+model classes in the [Clarinet ORM Project](https://github.com/pgraham/Clarinet). The complete template can be found at
+<https://github.com/pgraham/Clarinet/blob/master/src/persister/persister.php>
+
 ```php
 <?php
 /**
@@ -140,6 +144,18 @@ class ${class} {
       $this->_pdo->rollback();
       $model->set${idProperty}(null);
     }
+  }
+
+  public function delete(\${model} $model) {
+    // ...
+  }
+
+  public function retrieve(Criteria $c) {
+    // ...
+  }
+
+  public function update(\${model} $model) {
+    // ...
   }
 }
 ```
