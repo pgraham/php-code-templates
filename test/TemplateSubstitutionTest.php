@@ -12,13 +12,13 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace reed\test\generator;
+namespace pct\test;
 
-use \reed\generator\CodeTemplateLoader;
+use \pct\CodeTemplateLoader;
 
 use \PHPUnit_Framework_TestCase as TestCase;
 
-require_once __DIR__ . '/../test-common.php';
+require_once __DIR__ . '/test-common.php';
 
 /**
  * This class tests the CodeTemplateLoader class.
@@ -46,7 +46,7 @@ class TemplateSubstitutionTest extends TestCase {
       )
     );
 
-    $expected = file_get_contents(__DIR__ . '/simple.expected');
+    $expected = file_get_contents(__DIR__ . '/templates/simple.expected');
       
     $this->assertEquals($expected, $template);
   }
@@ -59,7 +59,7 @@ class TemplateSubstitutionTest extends TestCase {
       )
     );
 
-    $expected = file_get_contents(__DIR__ . '/join.expected');
+    $expected = file_get_contents(__DIR__ . '/templates/join.expected');
 
     $this->assertEquals($expected, $template);
   }
@@ -73,7 +73,7 @@ class TemplateSubstitutionTest extends TestCase {
     );
     $template = $this->_loader->load('array_sub', $values);
 
-    $expected = file_get_contents(__DIR__ . '/array_sub.expected');
+    $expected = file_get_contents(__DIR__ . '/templates/array_sub.expected');
     $this->assertEquals($expected, $template);
   }
 

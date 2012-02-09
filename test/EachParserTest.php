@@ -4,24 +4,23 @@
  * Copyright (c) 2010, Philip Graham
  * All rights reserved.
  *
- * This file is part of Reed and is licensed by the Copyright holder under the
- * 3-clause BSD License.  The full text of the license can be found in the
- * LICENSE.txt file included in the root directory of this distribution or at
- * the link below.
+ * This file is part of php-code-templates and is licensed by the Copyright
+ * holder under the 3-clause BSD License.  The full text of the license can be
+ * found in the LICENSE.txt file included in the root directory of this
+ * distribution or at the link below.
  * =============================================================================
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
- * @package reed/test/generator
  */
-namespace reed\test\generator;
+namespace pct\test;
 
-use \reed\generator\CodeTemplate;
-use \reed\generator\CodeBlockParser;
-use \reed\generator\EachParser;
+use pct\CodeTemplate;
+use pct\CodeBlockParser;
+use pct\EachParser;
 
 use \PHPUnit_Framework_TestCase as TestCase;
 
-require_once __DIR__ . '/../test-common.php';
+require_once __DIR__ . '/test-common.php';
 
 /**
  * This class tests the CodeTemplateLoader class.
@@ -42,7 +41,7 @@ class EachParserTest extends TestCase {
   }
 
   public function testParseEach() {
-    $code = file_get_contents(__DIR__ . '/each.template');
+    $code = file_get_contents(__DIR__ . '/templates/each.template');
     $template = new CodeTemplate();
 
     $parsed = $this->_parser->parse($code, $template);
@@ -55,7 +54,7 @@ class EachParserTest extends TestCase {
   }
 
   public function testLoadEach() {
-    $code = file_get_contents(__DIR__ . '/each.template');
+    $code = file_get_contents(__DIR__ . '/templates/each.template');
     $template = new CodeTemplate();
 
     $parsed = $this->_parser->parse($code, $template);

@@ -12,13 +12,13 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace reed\test\generator;
+namespace pct\test;
 
 use \PHPUnit_Framework_TestCase as TestCase;
 
-use \reed\generator\CodeTemplateParser;
+use \pct\CodeTemplateParser;
 
-require_once __DIR__ . '/../test-common.php';
+require_once __DIR__ . '/test-common.php';
 
 /**
  * This class tests proper template parsing and substitution for if templates.
@@ -28,8 +28,8 @@ require_once __DIR__ . '/../test-common.php';
 class IfSubstitutionTest extends TestCase {
 
   public function testBooleanIf() {
-    $expectedBase = file_get_contents(__DIR__ . '/boolean_if-base.expected');
-    $templateCode = file_get_contents(__DIR__ . '/boolean_if.template');
+    $expectedBase = file_get_contents(__DIR__ . '/templates/boolean_if-base.expected');
+    $templateCode = file_get_contents(__DIR__ . '/templates/boolean_if.template');
     $template = CodeTemplateParser::parse($templateCode);
 
     $resolved = $template->forValues(array('boolval' => true));
@@ -41,8 +41,8 @@ class IfSubstitutionTest extends TestCase {
   }
 
   public function testNestedEachIf() {
-    $expected = file_get_contents(__DIR__ . '/nested_each_if.expected');
-    $templateCode = file_get_contents(__DIR__ . '/nested_each_if.template');
+    $expected = file_get_contents(__DIR__ . '/templates/nested_each_if.expected');
+    $templateCode = file_get_contents(__DIR__ . '/templates/nested_each_if.template');
     $template = CodeTemplateParser::parse($templateCode);
 
     $resolved = $template->forValues(array
@@ -67,7 +67,7 @@ class IfSubstitutionTest extends TestCase {
   }
 
   public function testNestedIfIf() {
-    $templateCode = file_get_contents(__DIR__ . '/nested_if.template');
+    $templateCode = file_get_contents(__DIR__ . '/templates/nested_if.template');
     $template = CodeTemplateParser::parse($templateCode);
 
     $expectedBase = "This is a template with an if statement nested inside of"

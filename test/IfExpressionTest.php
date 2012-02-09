@@ -12,13 +12,13 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace reed\test\generator;
+namespace pct\test;
 
 use \PHPUnit_Framework_TestCase as TestCase;
 
-use \reed\generator\IfExpression;
+use \pct\IfExpression;
 
-require_once __DIR__ . '/../test-common.php';
+require_once __DIR__ . '/test-common.php';
 
 /**
  * This class tests proper evaluation of if expressions.
