@@ -14,8 +14,6 @@
  */
 namespace pct;
 
-use \Exception;
-
 /**
  * This class represents an ${each:name as alias} ... ${done} substitution block
  * in a code template.
@@ -23,19 +21,13 @@ use \Exception;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class EachBlock extends CodeBlock {
-
-  /** The number of each blocks that have been parsed */
-  public static $numBlocks = 0;
+class EachBlock extends CompositeBlock {
 
   /* The name of the value as used in the code block */
   private $_alias;
 
   /* The name of the value to substitute into the block */
   private $_name;
-
-  /* The each block's substitution tag. */
-  private $_tag;
 
   /**
    * Create a new each block representation.
@@ -44,19 +36,18 @@ class EachBlock extends CodeBlock {
    * @param string $expression The each expression.  Must in the form
    *   valueName as alias
    */
-  public function __construct($indent, $expression) {
-    parent::__construct($indent);
+  public function __construct($expression, $lineNum) {
+    parent::__construct($lineNum);
 
     $parts = preg_split('/ as /i', $expression, 2);
     if (count($parts) !== 2) {
-      throw new Exception('Each block expression must be in the form'
-        .' ${each:<val-name> as <alias>}');
+      throw new SubstitutionException(
+        'Each block expression must be in the form ${each:<array> as <var>}',
+        $this->lineNum);
     }
 
     $this->_name = trim($parts[0]);
     $this->_alias = trim($parts[1]);
-
-    $this->_tag = '${each' . ++self::$numBlocks . '}';
   }
 
   /**
@@ -66,41 +57,26 @@ class EachBlock extends CodeBlock {
    * @param Array $values
    * @return string The resolved code block for the given substitution values.
    */
-  public function forValues(array $values, $code = null) {
-    if (!array_key_exists($this->_name, $values)) {
-      throw new Exception("No substitution value for {$this->_name}");
+  public function forValues(TemplateValues $values) {
+    $itr = $values->getValue($this->_name);
+    if ($itr === null) {
+      throw new UndefinedValueException($this->_name, $this->lineNum);
     }
 
-    if ($values[$this->_name] === null) {
-      return '';
-    }
-
-    $subVals = $values[$this->_name];
-    if (!is_array($subVals)) {
-      $subVals = array( $subVals );
+    if (!is_array($itr)) {
+      throw new InvalidTypeException($this->_name, 'array', $itr,
+        $this->lineNum);
     }
 
     $eaches = array();
-    foreach ($subVals as $val) {
+    foreach ($itr as $val) {
       $values[$this->_alias] = $val;
 
-      $resolved = parent::forValues($values);
-      $eaches[] = $this->_indent . $resolved;
+      $eaches[] = parent::forValues($values);
+      unset($values[$this->_alias]);
     }
 
-    $each = implode("\n", $eaches);
-
-    return ltrim($each);
-  }
-
-  /**
-   * Getter for the substitution tag for this block.  The parser will replace
-   * the block declaration with this tag.
-   *
-   * @return string
-   */
-  public function getTag() {
-    return $this->_tag;
+    return ltrim(implode("\n", $eaches));
   }
 
 }

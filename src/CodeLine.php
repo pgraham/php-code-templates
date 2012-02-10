@@ -38,7 +38,7 @@ class CodeLine {
     $this->_lineNum = $lineNum;
   }
 
-  public function forValues(array $values) {
+  public function forValues(TemplateValues $values) {
     // Only parse tags once and only if the line is actually output
     if ($this->_tags === null) {
       $this->_parseTags();
@@ -60,21 +60,24 @@ class CodeLine {
     // Parse joins
     if (preg_match_all(self::JOIN_RE, $this->_line, $joins, PREG_SET_ORDER)) {
       foreach ($joins AS $join) {
-        $this->_tags[] = new JoinSubstitution($join[1], $join[2]);
+        $tag = new JoinSubstitution($join[1], $join[2], $this->_lineNum);
+        $this->_tags[] = $tag;
       }
     }
 
     // Parse JSON outputs
     if (preg_match_all(self::JSON_RE, $this->_line, $jsons, PREG_SET_ORDER)) {
       foreach ($jsons AS $json) {
-        $this->_tags[] = new JsonSubstitution($json[1]);
+        $tag = new JsonSubstitution($json[1], $this->_lineNum);
+        $this->_tags[] = $tag;
       }
     }
 
     // Parse normal substitutions
     if (preg_match_all(self::TAG_RE, $this->_line, $tags, PREG_SET_ORDER)) {
       foreach ($tags AS $tag) {
-        $this->_tags[] = new TagSubstitution($tag[1]);
+        $tag = new TagSubstitution($tag[1], $this->_lineNum);
+        $this->_tags[] = $tag;
       }
     }
   }

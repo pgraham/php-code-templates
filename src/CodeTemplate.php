@@ -21,11 +21,7 @@ namespace pct;
  */
 class CodeTemplate extends CompositeBlock {
 
-  public function forValues(array $values) {
-    $substituted = array();
-    foreach ($this->_blocks AS $block) {
-      $substituted[] = $block->forValues($values);
-    }
-    return implode("\n", $substituted);
+  public function __construct() {
+    parent::__construct(1);
   }
 }

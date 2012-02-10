@@ -14,9 +14,9 @@
  */
 namespace pct\test;
 
-use \PHPUnit_Framework_TestCase as TestCase;
-
 use \pct\CodeTemplateParser;
+use \pct\TemplateValues;
+use \PHPUnit_Framework_TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
 
@@ -28,77 +28,134 @@ require_once __DIR__ . '/test-common.php';
 class IfSubstitutionTest extends TestCase {
 
   public function testBooleanIf() {
-    $expectedBase = file_get_contents(__DIR__ . '/templates/boolean_if-base.expected');
-    $templateCode = file_get_contents(__DIR__ . '/templates/boolean_if.template');
-    $template = CodeTemplateParser::parse($templateCode);
+    $parser = new CodeTemplateParser();
 
-    $resolved = $template->forValues(array('boolval' => true));
-    $condMsg = "\n  I was included conditionally!";
-    $this->assertEquals($expectedBase.$condMsg, trim($resolved));
+    $ifCtnt = "\${if:boolval}\nI am true\n\${else}\nI am false\${fi}";
+    $template = $parser->parse($ifCtnt);
 
-    $resolved = $template->forValues(array('boolval' => false));
-    $this->assertEquals(trim($expectedBase), trim($resolved));
+    // Assert structure of parsed code template
+    $blocks = $template->getBlocks();
+    $this->assertCount(1, $blocks);
+
+    // Assert structure of parsed if block
+    $ifBlock = $blocks[0];
+    $this->assertInstanceOf('pct\ConditionalBlock', $ifBlock);
+    $this->assertCount(1, $ifBlock->getBlocks());
+
+    $ifExpression = $ifBlock->getExpression();
+    $this->assertNotNull($ifExpression);
+    $this->assertInstanceOf('pct\ConditionalExpression', $ifExpression);
+
+    // Assert value substitution for if block
+    $vals = new TemplateValues(array( 'boolval' => true ));
+    $this->assertTrue($ifExpression->isSatisfiedBy($vals));
+
+    $expected = "I am true";
+    $actual = $template->forValues($vals);
+    $this->assertEquals($expected, $actual);
+
+    // Assert structure of else block
+    $elseBlock = $ifBlock->getElse();
+    $this->assertNotNull($elseBlock);
+    $this->assertInstanceOf('pct\ConditionalBlock', $elseBlock);
+    $this->assertCount(1, $elseBlock->getBlocks());
+    $this->assertNull($elseBlock->getExpression());
+
+    // Assert value sustitution for else block
+    $vals = new TemplateValues(array( 'boolval' => false ));
+
+    $expected = "I am false";
+    $actual = $template->forValues($vals);
+    $this->assertEquals($expected, $actual);
   }
 
-  public function testNestedEachIf() {
-    $expected = file_get_contents(__DIR__ . '/templates/nested_each_if.expected');
-    $templateCode = file_get_contents(__DIR__ . '/templates/nested_each_if.template');
-    $template = CodeTemplateParser::parse($templateCode);
+  public function testOpIfElseIf() {
+    $parser = new CodeTemplateParser();
 
-    $resolved = $template->forValues(array
-      (
-        'props' => array(
-          array(
-            'id'    => 'firstProp',
-            'cond1' => true
-          ),
-          array(
-            'id'    => 'twoProp',
-            'cond2' => true
-          ),
-          array(
-            'id'    => 'threeProp'
-          )
-        )
-      )
-    );
+    $ifCtnt = 
+      "\${if:val = val1}\n" .
+      "I am val1\n" .
+      "\${elseif:val = val2}\n" .
+      "I am val2\n" .
+      "\${elseif:val = val3}\n" .
+      "I am val3\n" .
+      "\${else}\n" .
+      "I am another value\n" .
+      "\${fi}";
+    $template = $parser->parse($ifCtnt);
 
-    $this->assertEquals($expected, $resolved);
+    // Assert Structure of parsed code template
+    $blocks = $template->getBlocks();
+    $this->assertCount(1, $blocks);
+
+    // Assert structure of parsed if block
+    $if = $blocks[0];
+    $this->assertInstanceOf('pct\ConditionalBlock', $if);
+    $this->assertCount(1, $if->getBlocks());
+
+    $ifExp = $if->getExpression();
+    $this->assertNotNull($ifExp);
+
+    $elseIf1 = $if->getElse();
+    $this->assertNotNull($elseIf1);
+    $this->assertInstanceOf('pct\ConditionalBlock', $elseIf1);
+    $this->assertCount(1, $elseIf1->getBlocks());
+
+    $elseIf1Exp = $elseIf1->getExpression();
+    $this->assertNotNull($elseIf1Exp);
+
+    $elseIf2 = $elseIf1->getElse();
+    $this->assertNotNull($elseIf2);
+    $this->assertInstanceOf('pct\ConditionalBlock', $elseIf2);
+    $this->assertCount(1, $elseIf2->getBlocks());
+
+    $elseIf2Exp = $elseIf2->getExpression();
+    $this->assertNotNull($elseIf2Exp);
+
+    $else = $elseIf2->getElse();
+    $this->assertNotNull($else);
+    $this->assertInstanceOf('pct\ConditionalBlock', $else);
+    $this->assertCount(1, $else->getBlocks());
+    $this->assertNull($else->getElse());
+    $this->assertNull($else->getExpression());
+
+
+    // Test value substitution
+    $vals = new TemplateValues(array('val' => 'val1'));
+    $this->assertTrue($ifExp->isSatisfiedBy($vals));
+    $this->assertFalse($elseIf1Exp->isSatisfiedBy($vals));
+    $this->assertFalse($elseIf2Exp->isSatisfiedBy($vals));
+
+    $expected = 'I am val1';
+    $actual = $template->forValues($vals);
+    $this->assertEquals($expected, $actual);
+
+    $vals = new TemplateValues(array('val' => 'val2'));
+    $this->assertFalse($ifExp->isSatisfiedBy($vals));
+    $this->assertTrue($elseIf1Exp->isSatisfiedBy($vals));
+    $this->assertFalse($elseIf2Exp->isSatisfiedBy($vals));
+
+    $expected = 'I am val2';
+    $actual = $template->forValues($vals);
+    $this->assertEquals($expected, $actual);
+
+    $vals = new TemplateValues(array('val' => 'val3'));
+    $this->assertFalse($ifExp->isSatisfiedBy($vals));
+    $this->assertFalse($elseIf1Exp->isSatisfiedBy($vals));
+    $this->assertTrue($elseIf2Exp->isSatisfiedBy($vals));
+
+    $expected = 'I am val3';
+    $actual = $template->forValues($vals);
+    $this->assertEquals($expected, $actual);
+
+    $vals = new TemplateValues(array('val' => 'val4'));
+    $this->assertFalse($ifExp->isSatisfiedBy($vals));
+    $this->assertFalse($elseIf1Exp->isSatisfiedBy($vals));
+    $this->assertFalse($elseIf2Exp->isSatisfiedBy($vals));
+
+    $expected = 'I am another value';
+    $actual = $template->forValues($vals);
+    $this->assertEquals($expected, $actual);
   }
 
-  public function testNestedIfIf() {
-    $templateCode = file_get_contents(__DIR__ . '/templates/nested_if.template');
-    $template = CodeTemplateParser::parse($templateCode);
-
-    $expectedBase = "This is a template with an if statement nested inside of"
-      . " an if statement.\n\n";
-
-    $expected = $expectedBase . "  value1 and value2\n\n";
-    $resolved = $template->forValues(array(
-      'value1' => true,
-      'value2' => true
-    ));
-    $this->assertEquals($expected, $resolved);
-
-    $expected = $expectedBase . "  value1 and not value2\n\n";
-    $resolved = $template->forValues(array(
-      'value1' => true,
-      'value2' => false
-    ));
-    $this->assertEquals($expected, $resolved);
-
-    $expected = $expectedBase . "  not value1 and value2\n\n";
-    $resolved = $template->forValues(array(
-      'value1' => false,
-      'value2' => true
-    ));
-    $this->assertEquals($expected, $resolved);
-
-    $expected = $expectedBase . "  not value1 and not value2\n\n";
-    $resolved = $template->forValues(array(
-      'value1' => false,
-      'value2' => false
-    ));
-    $this->assertEquals($expected, $resolved);
-  }
 }

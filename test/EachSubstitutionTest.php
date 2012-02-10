@@ -21,31 +21,33 @@ use \PHPUnit_Framework_TestCase as TestCase;
 require_once __DIR__ . '/test-common.php';
 
 /**
- * This class tests that templates that only contain substitution tags are
- * parsed and substituted as expected.
+ * This class tests proper template parsing and substitution for each templates.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class SimpleTemplateTest extends TestCase {
+class EachSubstitutionTest extends TestCase {
 
-  public function testSingleCodeBlockWithTagSubstitutions() {
+  public function testEach() {
     $parser = new CodeTemplateParser();
 
-    $templateCtnt = file_get_contents(__DIR__ . '/templates/simple.template');
-    $template = $parser->parse($templateCtnt);
+    $eachCtnt = "\${each:itr as i}\n\${i}\n\${done}";
+    $template = $parser->parse($eachCtnt);
 
-    $keys = array('sub1', 'sub2', 'sub3');
-    $vals = array('val1', 'val2', 'val3');
-    $expected = str_replace(
-      array_map(function ($key) { return '${' . $key . '}'; }, $keys),
-      $vals,
-      $templateCtnt
-    );
+    // Assert structure of parsed template
+    $blocks = $template->getBlocks();
+    $this->assertCount(1, $blocks);
 
-    $actual = $template->forValues(new TemplateValues(
-      array_combine($keys, $vals)
+    $eachBlock = $blocks[0];
+    $this->assertInstanceOf('pct\EachBlock', $eachBlock);
+    $this->assertCount(1, $eachBlock->getBlocks());
+
+    // Assert value substitution for each block
+    $vals = new TemplateValues(array(
+      'itr' => array( 'val1', 'val2', 'val3', 'val4' )
     ));
 
+    $expected = "val1\nval2\nval3\nval4";
+    $actual = $template->forValues($vals);
     $this->assertEquals($expected, $actual);
   }
 

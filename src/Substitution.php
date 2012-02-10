@@ -15,8 +15,15 @@
 namespace pct;
 
 /**
- * This class encapsulates the else clause of an if block.
+ * This class encapsulates base behaviour for inline tag substitutions.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class ElseClause extends CodeBlock {}
+abstract class Substitution {
+
+  protected $lineNum;
+
+  protected function __construct($lineNum) {
+    $this->lineNum = $lineNum;
+  }
+}

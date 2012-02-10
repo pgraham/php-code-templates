@@ -23,11 +23,11 @@ namespace pct;
 class CodeTemplateParser {
 
   const DONE_RE   = '/^[\t ]*\$\{done\}/';
-  const EACH_RE   = '/^([\t ]*)\$\{each:([^\}]+)\}/';
-  const ELSE_RE   = '/^([\t ]*)\$\{else\}$/';
-  const ELSEIF_RE = '/^([\t ]*)\$\{elseif:([^\}]+)\}$/';
-  const FI_RE     = '/^([\t ]*)\$\{fi\}$/';
-  const IF_RE     = '/^([\t ]*)\$\{if:([^\}]+)\}$/';
+  const EACH_RE   = '/^[\t ]*\$\{each:([^\}]+)\}/';
+  const ELSE_RE   = '/^[\t ]*\$\{else\}$/';
+  const ELSEIF_RE = '/^[\t ]*\$\{elseif:([^\}]+)\}$/';
+  const FI_RE     = '/^[\t ]*\$\{fi\}$/';
+  const IF_RE     = '/^[\t ]*\$\{if:([^\}]+)\}$/';
 
   /**
    * Parse the given code and populate the given CodeTemplate.
@@ -49,12 +49,50 @@ class CodeTemplateParser {
     $lineNum = 1;
     foreach ($lines AS $line) {
 
-      if (preg_match(self::IF_RE, $line)) {
-      } else if (preg_match(self::ELSEIF_RE, $line)) {
+      if (preg_match(self::IF_RE, $line, $matches)) {
+        $ifBlock = new ConditionalBlock($matches[1], $lineNum);
+
+        $headBlock = end($blockStack);
+        $headBlock->addBlock($ifBlock);
+        array_push($blockStack, $ifBlock);
+
+        $curBlock = null;
+
+      } else if (preg_match(self::ELSEIF_RE, $line, $matches)) {
+        $elseIfBlock = new ConditionalBlock($matches[1], $lineNum);
+
+        $headBlock = array_pop($blockStack);
+        $headBlock->setElse($elseIfBlock);
+        array_push($blockStack, $elseIfBlock);
+
+        $curBlock = null;
+
       } else if (preg_match(self::ELSE_RE, $line)) {
+        $elseBlock = new ConditionalBlock(null, $lineNum);
+
+        $headBlock = array_pop($blockStack);
+        $headBlock->setElse($elseBlock);
+        array_push($blockStack, $elseBlock);
+
+        $curBlock = null;
+
       } else if (preg_match(self::FI_RE, $line)) {
-      } else if (preg_match(self::EACH_RE, $line)) {
+        array_pop($blockStack);
+        $curBlock = null;
+
+      } else if (preg_match(self::EACH_RE, $line, $matches)) {
+        $eachBlock = new EachBlock($matches[1], $lineNum);
+
+        $headBlock = end($blockStack);
+        $headBlock->addBlock($eachBlock);
+        array_push($blockStack, $eachBlock);
+
+        $curBlock = null;
+
       } else if (preg_match(self::DONE_RE, $line)) {
+        array_pop($blockStack);
+        $curBlock = null;
+
       } else {
         if ($curBlock === null) {
           $curBlock = new CodeBlock();

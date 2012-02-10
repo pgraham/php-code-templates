@@ -15,18 +15,14 @@
 namespace pct;
 
 /**
- * Interface for block level elements in a parsed code template.
+ * Exception for cases where a substitution value is undefined.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-interface Block {
+class UndefinedValueException extends SubstitutionException {
 
-  /**
-   * This method is responsible for substituting the given values into the
-   * block and returning the result
-   *
-   * @param array $values
-   * @return string
-   */
-  public function forValues(TemplateValues $values);
+  public function __construct($name, $lineNum) {
+    parent::__construct("Substitution value for $name is not defined",
+      $lineNum);
+  }
 }

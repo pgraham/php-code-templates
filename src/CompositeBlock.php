@@ -22,9 +22,30 @@ namespace pct;
  */
 abstract class CompositeBlock implements Block {
 
-  protected $_blocks = array();
+  protected $blocks = array();
+
+  protected $lineNum;
+
+  protected function __construct($lineNum) {
+    $this->lineNum = $lineNum;
+  }
 
   public function addBlock(Block $block) {
-    $this->_blocks[] = $block;
+    $this->blocks[] = $block;
+  }
+
+  public function forValues(TemplateValues $values) {
+    $substituted = array();
+    foreach ($this->blocks AS $block) {
+      $blockVal = $block->forValues($values);
+      if ($blockVal !== null) {
+        $substituted[] = $block->forValues($values);
+      }
+    }
+    return implode("\n", $substituted);
+  }
+
+  public function getBlocks() {
+    return $this->blocks;
   }
 }

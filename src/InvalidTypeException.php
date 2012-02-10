@@ -15,18 +15,27 @@
 namespace pct;
 
 /**
- * Interface for block level elements in a parsed code template.
+ * This class encapsulates an exception that occurs when the value given for
+ * a substitution tag is not the expected type.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-interface Block {
+class InvalidTypeException extends SubstitutionException {
 
   /**
-   * This method is responsible for substituting the given values into the
-   * block and returning the result
+   * Create a new InvalidTypeException.
    *
-   * @param array $values
-   * @return string
+   * @param string $name
+   * @param string $expectedType
+   * @param mixed $actualValue
+   * @param integer $lineNum
    */
-  public function forValues(TemplateValues $values);
+  public function __construct($name, $expectedType, $actualValue, $lineNum) {
+    parent::__construct(
+      "Substitution value for $name was an unexpected type.\n" .
+      "  Expected: $expectedType.\n" .
+      "  Found: $actualValue (" . gettype($actualValue) . ")",
+      $lineNum);
+  }
+
 }

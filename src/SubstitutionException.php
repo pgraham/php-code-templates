@@ -14,9 +14,25 @@
  */
 namespace pct;
 
+use \Exception;
+
 /**
- * This class encapsulates an elseif clause of an if block.
+ * This class encapsulates and exception that occurs durring template value
+ * substitution.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class ElseIfClause extends ConditionalClause {}
+class SubstitutionException extends Exception {
+
+  private $_lineNum;
+
+  public function __construct($message, $lineNum) {
+    parent::__construct($message);
+    $this->_lineNum = $lineNum;
+  }
+
+  public function getLineNum() {
+    return $this->_lineNum;
+  }
+
+}

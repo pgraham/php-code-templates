@@ -15,8 +15,26 @@
 namespace pct;
 
 /**
- * This class encapsulates the opening if clause of an if block.
+ * This class represents a json tag substitution in a line of a code template.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class IfClause extends ConditionalClause {}
+class JsonSubstitution extends Substitution {
+
+  private $_name;
+
+  public function __construct($name, $lineNum) {
+    parent::__construct($lineNum);
+
+    $this->_name = $name;
+  }
+
+  public function getKey() {
+    return '${json:' . $this->_name . '}';
+  }
+
+  public function getValue(TemplateValues $values) {
+    return json_encode($values->getValue($this->_name));
+  }
+
+}

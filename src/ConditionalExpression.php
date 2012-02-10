@@ -15,17 +15,15 @@
 namespace pct;
 
 /**
- * This class encapsulates expression evaluation for a conditional clause of an
- * IfBlock.
+ * This class encapsulates expression evaluation for a conditional clause of a
+ * {@link ConditionalBlock}.
  *
- * TODO - Abstract expression evaluation then have this class consume a set of
- *        supported operators
- *      - Add support for and boolean operators.  Bracketing will be implied,
- *        ORs will be grouped and separated by ANDs.
+ * TODO - Add support for 'and' boolean operators.  Bracketing will be implied,
+ *        ORs will be grouped and separated by ANDs (Conjunctive normal form).
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class IfExpression {
+class ConditionalExpression {
 
   /* Whether or not the class has been statically constructed. */
   private static $_initialized = false;
@@ -95,7 +93,7 @@ class IfExpression {
   private $_conditions = array();
 
   /**
-   * Create a new IfExpression.
+   * Create a new ConditionalExpression.
    *
    * @param string $expression Unparsed expression string.
    */
@@ -139,11 +137,6 @@ class IfExpression {
       $val = null;
     }
 
-    $matches = array();
-    if (preg_match('/([[:alnum:]_-]+)\[([[:alnum:]_-]+)\]/', $name, $matches)) {
-      $name = array($matches[1], $matches[2]);
-    }
-
     $this->_conditions[] = array(
       'name' => $name,
       'op'   => $op,
@@ -158,9 +151,9 @@ class IfExpression {
    * @param Array $values Set of substitution values.
    * @return boolean
    */
-  public function isSatisfiedBy(array $values) {
+  public function isSatisfiedBy(TemplateValues $values) {
     foreach ($this->_conditions AS $cond) {
-      $val = $this->_extractValue($cond['name'], $values);
+      $val = $values->getValue($cond['name']);
 
       if ($cond['val'] === null) {
         if ($val === true) {
@@ -177,25 +170,4 @@ class IfExpression {
     return false;
   }
 
-  private function _extractValue($name, array $values) {
-    $val = null;
-    if (is_array($name)) {
-      if (!isset($values[$name[0]]) ||
-          !is_array($values[$name[0]]) ||
-          !isset($values[$name[0]][$name[1]]))
-      {
-        return null;
-      }
-
-      $val = $values[$name[0]][$name[1]];
-    } else {
-      if (!isset($values[$name])) {
-        return null;
-      }
-
-      $val = $values[$name];
-    }
-
-    return $val;
-  }
 }
