@@ -57,7 +57,7 @@ class EachBlock extends CompositeBlock {
    * @param Array $values
    * @return string The resolved code block for the given substitution values.
    */
-  public function forValues(TemplateValues $values) {
+  public function forValues($values) {
     $itr = $values->getValue($this->_name);
     if ($itr === null) {
       throw new UndefinedValueException($this->_name, $this->lineNum);

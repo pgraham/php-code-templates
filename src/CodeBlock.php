@@ -27,7 +27,7 @@ class CodeBlock implements Block {
     $this->_lines[] = $line;
   }
 
-  public function forValues(TemplateValues $values) {
+  public function forValues($values) {
     $substituted = array();
     foreach ($this->_lines AS $line) {
       $substituted[] = $line->forValues($values);

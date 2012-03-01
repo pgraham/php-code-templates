@@ -25,8 +25,8 @@ interface Block {
    * This method is responsible for substituting the given values into the
    * block and returning the result
    *
-   * @param array $values
+   * @param TemplateValues|array $values
    * @return string
    */
-  public function forValues(TemplateValues $values);
+  public function forValues($values);
 }

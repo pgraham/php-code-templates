@@ -34,7 +34,10 @@ abstract class CompositeBlock implements Block {
     $this->blocks[] = $block;
   }
 
-  public function forValues(TemplateValues $values) {
+  public function forValues($values) {
+    if (is_array($values)) {
+      $values = new TemplateValues($values);
+    }
     $substituted = array();
     foreach ($this->blocks AS $block) {
       $blockVal = $block->forValues($values);

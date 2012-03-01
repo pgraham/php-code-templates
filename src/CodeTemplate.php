@@ -24,4 +24,18 @@ class CodeTemplate extends CompositeBlock {
   public function __construct() {
     parent::__construct(1);
   }
+
+  /**
+   * Save the resolved with the given values at the given path.
+   *
+   * @param string $outPath
+   * @param array $values
+   */
+  public function save($outPath, $values = null) {
+    if (!file_exists(dirname($outPath))) {
+      mkdir(dirname($outPath), 0755, true);
+    }
+
+    file_put_contents($outPath, $this->forValues($values));
+  }
 }

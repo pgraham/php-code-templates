@@ -31,7 +31,7 @@ class ConditionalBlock extends CompositeBlock {
     }
   }
 
-  public function forValues(TemplateValues $values) {
+  public function forValues($values) {
     if ($this->_expression === null ||
         $this->_expression->isSatisfiedBy($values))
     {
