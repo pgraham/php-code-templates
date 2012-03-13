@@ -76,7 +76,7 @@ class EachBlock extends CompositeBlock {
       unset($values[$this->_alias]);
     }
 
-    return ltrim(implode("\n", $eaches));
+    return implode("\n", $eaches);
   }
 
 }

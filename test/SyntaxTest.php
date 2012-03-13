@@ -12,28 +12,19 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace pct\test;
+
+use \pct\CodeTemplateParser;
+use \pct\SyntaxExpression;
+use \PHPUnit_Framework_TestCase as TestCase;
+
+require_once __DIR__ . '/test-common.php';
 
 /**
- * Base class for all Clode blocks clauses.
+ * This class tests that syntax errors are properly reported.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class CodeBlock implements Block {
-
-  private $_lines = array();
-
-  public function addLine(CodeLine $line) {
-    $this->_lines[] = $line;
-  }
-
-  public function forValues($values) {
-    $substituted = array();
-    foreach ($this->_lines AS $line) {
-      $lineVal = $line->forValues($values);
-      $substituted[] = $line->forValues($values);
-    }
-    return  implode("\n", $substituted);
-  }
+class SyntaxText extends TestCase {
 
 }

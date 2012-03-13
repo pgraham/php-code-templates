@@ -29,6 +29,9 @@ class CodeTemplateParser {
   const FI_RE     = '/^[\t ]*\$\{fi\}$/';
   const IF_RE     = '/^[\t ]*\$\{if:([^\}]+)\}$/';
 
+  /* String that constitutes a level of indentation in the template */
+  private $_indentString = '  ';
+
   /**
    * Parse the given code and populate the given CodeTemplate.
    *
@@ -46,8 +49,9 @@ class CodeTemplateParser {
     // The current CodeBlock to which CodeLines are being added.
     $curBlock = null;
 
-    $lineNum = 1;
+    $lineNum = 0;
     foreach ($lines AS $line) {
+      $lineNum++;
 
       if (preg_match(self::IF_RE, $line, $matches)) {
         $ifBlock = new ConditionalBlock($matches[1], $lineNum);
@@ -103,12 +107,30 @@ class CodeTemplateParser {
         }
 
         $codeLine = new CodeLine($line, $lineNum);
+
+        $indent = $this->_parseIndent($line) - count($blockStack) + 1;
+        $codeLine->setIndent($indent);
+
         $curBlock->addLine($codeLine);
       }
-
-      $lineNum++;
     }
 
     return $template;
   }
+
+  public function setIndentString($indentString) {
+    $this->_indentString = $indentString;
+  }
+
+  private function _parseIndent($line) {
+    $indentRe = '/^' . preg_quote($this->_indentString) . '/';
+
+    $indent = 0;
+    while (preg_match($indentRe, $line)) {
+      $indent++;
+      $line = preg_replace($indentRe, '', $line);
+    }
+    return $indent;
+  }
+
 }

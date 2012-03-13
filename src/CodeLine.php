@@ -28,13 +28,14 @@ class CodeLine {
   const JSON_RE = '/\$\{json:([^\}]+)\}/';
   const TAG_RE  = '/\$\{([[:alnum:]\[\]_-]+)\}/';
 
+  private $_indent = 0;
   private $_line;
   private $_lineNum;
 
   private $_tags;
 
   public function __construct($line, $lineNum) {
-    $this->_line = $line;
+    $this->_line = trim($line);
     $this->_lineNum = $lineNum;
   }
 
@@ -51,7 +52,24 @@ class CodeLine {
       $replace[] = $tag->getValue($values);
     }
 
-    return str_replace($search, $replace, $this->_line);
+    $r = $this->_getIndent() . str_replace($search, $replace, $this->_line);
+    return $r;
+  }
+
+  public function getLineNum() {
+    return $this->_lineNum;
+  }
+
+  public function setIndent($indent) {
+    $this->_indent = $indent;
+  }
+
+  private function _getIndent() {
+    $indent = '';
+    for ($i = 0; $i < $this->_indent; $i++) {
+      $indent .= '  ';
+    }
+    return $indent;
   }
 
   private function _parseTags() {

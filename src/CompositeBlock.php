@@ -42,7 +42,7 @@ abstract class CompositeBlock implements Block {
     foreach ($this->blocks AS $block) {
       $blockVal = $block->forValues($values);
       if ($blockVal !== null) {
-        $substituted[] = $block->forValues($values);
+        $substituted[] = $blockVal;
       }
     }
     return implode("\n", $substituted);
