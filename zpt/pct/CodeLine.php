@@ -26,6 +26,7 @@ class CodeLine {
 
   const JOIN_RE = '/\$\{join:([^:]+):([^\}]+)\}/';
   const JSON_RE = '/\$\{json:([^\}]+)\}/';
+  const PHP_RE = '/\$\{php:([^\}]+)\}/';
   const TAG_RE  = '/\$\{([[:alnum:]\[\]_-]+)\}/';
 
   private $_indent = 0;
@@ -77,7 +78,7 @@ class CodeLine {
 
     // Parse joins
     if (preg_match_all(self::JOIN_RE, $this->_line, $joins, PREG_SET_ORDER)) {
-      foreach ($joins AS $join) {
+      foreach ($joins as $join) {
         $tag = new JoinSubstitution($join[1], $join[2], $this->_lineNum);
         $this->_tags[] = $tag;
       }
@@ -85,15 +86,23 @@ class CodeLine {
 
     // Parse JSON outputs
     if (preg_match_all(self::JSON_RE, $this->_line, $jsons, PREG_SET_ORDER)) {
-      foreach ($jsons AS $json) {
+      foreach ($jsons as $json) {
         $tag = new JsonSubstitution($json[1], $this->_lineNum);
+        $this->_tags[] = $tag;
+      }
+    }
+
+    // Parse PHP output
+    if (preg_match_all(self::PHP_RE, $this->_line, $phps, PREG_SET_ORDER)) {
+      foreach ($phps as $php) {
+        $tag = new PhpSubstitution($php[1], $this->_lineNum);
         $this->_tags[] = $tag;
       }
     }
 
     // Parse normal substitutions
     if (preg_match_all(self::TAG_RE, $this->_line, $tags, PREG_SET_ORDER)) {
-      foreach ($tags AS $tag) {
+      foreach ($tags as $tag) {
         $tag = new TagSubstitution($tag[1], $this->_lineNum);
         $this->_tags[] = $tag;
       }
