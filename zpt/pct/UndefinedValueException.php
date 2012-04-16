@@ -12,28 +12,17 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
- * Base class for all Clode blocks clauses.
+ * Exception for cases where a substitution value is undefined.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class CodeBlock implements Block {
+class UndefinedValueException extends SubstitutionException {
 
-  private $_lines = array();
-
-  public function addLine(CodeLine $line) {
-    $this->_lines[] = $line;
+  public function __construct($name, $lineNum) {
+    parent::__construct("Substitution value for $name is not defined",
+      $lineNum);
   }
-
-  public function forValues($values) {
-    $substituted = array();
-    foreach ($this->_lines AS $line) {
-      $lineVal = $line->forValues($values);
-      $substituted[] = $line->forValues($values);
-    }
-    return  implode("\n", $substituted);
-  }
-
 }

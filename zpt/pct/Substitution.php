@@ -12,17 +12,18 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
- * Exception for cases where a substitution value is undefined.
+ * This class encapsulates base behaviour for inline tag substitutions.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class UndefinedValueException extends SubstitutionException {
+abstract class Substitution {
 
-  public function __construct($name, $lineNum) {
-    parent::__construct("Substitution value for $name is not defined",
-      $lineNum);
+  protected $lineNum;
+
+  protected function __construct($lineNum) {
+    $this->lineNum = $lineNum;
   }
 }

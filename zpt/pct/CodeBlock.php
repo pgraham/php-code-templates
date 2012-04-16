@@ -12,27 +12,28 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
-
-use \Exception;
+namespace zpt\pct;
 
 /**
- * This class encapsulates and exception that occurs durring template value
- * substitution.
+ * Base class for all Clode blocks clauses.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class SubstitutionException extends Exception {
+class CodeBlock implements Block {
 
-  private $_lineNum;
+  private $_lines = array();
 
-  public function __construct($message, $lineNum) {
-    parent::__construct($message);
-    $this->_lineNum = $lineNum;
+  public function addLine(CodeLine $line) {
+    $this->_lines[] = $line;
   }
 
-  public function getLineNum() {
-    return $this->_lineNum;
+  public function forValues($values) {
+    $substituted = array();
+    foreach ($this->_lines AS $line) {
+      $lineVal = $line->forValues($values);
+      $substituted[] = $line->forValues($values);
+    }
+    return  implode("\n", $substituted);
   }
 
 }

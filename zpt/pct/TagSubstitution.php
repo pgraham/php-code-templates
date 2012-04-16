@@ -12,14 +12,14 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
- * This class represents a json tag substitution in a line of a code template.
+ * This class represents a simple tag substitution in a line of a code template.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class JsonSubstitution extends Substitution {
+class TagSubstitution extends Substitution {
 
   private $_name;
 
@@ -28,13 +28,12 @@ class JsonSubstitution extends Substitution {
 
     $this->_name = $name;
   }
-
+  
   public function getKey() {
-    return '${json:' . $this->_name . '}';
+    return '${'. $this->_name . '}';
   }
 
   public function getValue(TemplateValues $values) {
-    return json_encode($values->getValue($this->_name));
+    return $values->getValue($this->_name);
   }
-
 }

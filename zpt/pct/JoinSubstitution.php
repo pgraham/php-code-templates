@@ -12,28 +12,36 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
- * This class represents a simple tag substitution in a line of a code template.
+ * This class represents a join tag substitution in a line of a code template.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class TagSubstitution extends Substitution {
+class JoinSubstitution extends Substitution {
 
   private $_name;
+  private $_glue;
 
-  public function __construct($name, $lineNum) {
+  public function __construct($name, $glue, $lineNum) {
     parent::__construct($lineNum);
 
     $this->_name = $name;
+    $this->_glue = $glue;
   }
-  
+
   public function getKey() {
-    return '${'. $this->_name . '}';
+    return '${join:' . $this->_name . ':' . $this->_glue . '}';
   }
 
   public function getValue(TemplateValues $values) {
-    return $values->getValue($this->_name);
+    $val = $values->getValue($this->_name);
+    if (!is_array($val)) {
+      throw new InvalidTypeException($this->_name, 'array', $val,
+        $this->lineNum);
+    }
+
+    return implode($this->_glue, $val);
   }
 }
