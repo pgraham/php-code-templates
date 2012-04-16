@@ -15,15 +15,7 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
 
-spl_autoload_register(function ($className) {
-  if (substr($className, 0, 4) != "pct\\") {
-    return;
-  }
+require 'SplClassLoader.php';
 
-  $logicalPath = str_replace('\\', DIRECTORY_SEPARATOR, substr($className, 4));
-  $fullPath = __DIR__ . "/../src/$logicalPath.php";
-
-  if (file_exists($fullPath)) {
-    require $fullPath;
-  }
-});
+$loader = new SplClassLoader('zpt\pct', __DIR__ . '/..');
+$loader->register();

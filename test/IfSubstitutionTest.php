@@ -12,10 +12,10 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct\test;
+namespace zpt\pct\test;
 
-use \pct\CodeTemplateParser;
-use \pct\TemplateValues;
+use \zpt\pct\CodeTemplateParser;
+use \zpt\pct\TemplateValues;
 use \PHPUnit_Framework_TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
@@ -39,12 +39,12 @@ class IfSubstitutionTest extends TestCase {
 
     // Assert structure of parsed if block
     $ifBlock = $blocks[0];
-    $this->assertInstanceOf('pct\ConditionalBlock', $ifBlock);
+    $this->assertInstanceOf('zpt\pct\ConditionalBlock', $ifBlock);
     $this->assertCount(1, $ifBlock->getBlocks());
 
     $ifExpression = $ifBlock->getExpression();
     $this->assertNotNull($ifExpression);
-    $this->assertInstanceOf('pct\ConditionalExpression', $ifExpression);
+    $this->assertInstanceOf('zpt\pct\ConditionalExpression', $ifExpression);
 
     // Assert value substitution for if block
     $vals = new TemplateValues(array( 'boolval' => true ));
@@ -57,7 +57,7 @@ class IfSubstitutionTest extends TestCase {
     // Assert structure of else block
     $elseBlock = $ifBlock->getElse();
     $this->assertNotNull($elseBlock);
-    $this->assertInstanceOf('pct\ConditionalBlock', $elseBlock);
+    $this->assertInstanceOf('zpt\pct\ConditionalBlock', $elseBlock);
     $this->assertCount(1, $elseBlock->getBlocks());
     $this->assertNull($elseBlock->getExpression());
 
@@ -90,7 +90,7 @@ class IfSubstitutionTest extends TestCase {
 
     // Assert structure of parsed if block
     $if = $blocks[0];
-    $this->assertInstanceOf('pct\ConditionalBlock', $if);
+    $this->assertInstanceOf('zpt\pct\ConditionalBlock', $if);
     $this->assertCount(1, $if->getBlocks());
 
     $ifExp = $if->getExpression();
@@ -98,7 +98,7 @@ class IfSubstitutionTest extends TestCase {
 
     $elseIf1 = $if->getElse();
     $this->assertNotNull($elseIf1);
-    $this->assertInstanceOf('pct\ConditionalBlock', $elseIf1);
+    $this->assertInstanceOf('zpt\pct\ConditionalBlock', $elseIf1);
     $this->assertCount(1, $elseIf1->getBlocks());
 
     $elseIf1Exp = $elseIf1->getExpression();
@@ -106,7 +106,7 @@ class IfSubstitutionTest extends TestCase {
 
     $elseIf2 = $elseIf1->getElse();
     $this->assertNotNull($elseIf2);
-    $this->assertInstanceOf('pct\ConditionalBlock', $elseIf2);
+    $this->assertInstanceOf('zpt\pct\ConditionalBlock', $elseIf2);
     $this->assertCount(1, $elseIf2->getBlocks());
 
     $elseIf2Exp = $elseIf2->getExpression();
@@ -114,7 +114,7 @@ class IfSubstitutionTest extends TestCase {
 
     $else = $elseIf2->getElse();
     $this->assertNotNull($else);
-    $this->assertInstanceOf('pct\ConditionalBlock', $else);
+    $this->assertInstanceOf('zpt\pct\ConditionalBlock', $else);
     $this->assertCount(1, $else->getBlocks());
     $this->assertNull($else->getElse());
     $this->assertNull($else->getExpression());

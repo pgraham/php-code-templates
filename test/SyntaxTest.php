@@ -12,10 +12,10 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct\test;
+namespace zpt\pct\test;
 
-use \pct\CodeTemplateParser;
-use \pct\SyntaxExpression;
+use \zpt\pct\CodeTemplateParser;
+use \zpt\pct\SyntaxExpression;
 use \PHPUnit_Framework_TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
@@ -26,5 +26,13 @@ require_once __DIR__ . '/test-common.php';
  * @author Philip Graham <philip@zeptech.ca>
  */
 class SyntaxText extends TestCase {
+
+  public function testUndefinedSubstitutionValue() {
+    // TODO
+  }
+
+  public function testOutOfOrderBlockClosing() {
+    // TODO
+  }
 
 }
