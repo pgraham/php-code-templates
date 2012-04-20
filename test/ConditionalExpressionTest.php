@@ -126,4 +126,68 @@ class ConditionalExpressionTest extends TestCase {
     ))));
     $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array())));
   }
+
+  public function testAndOperator() {
+    $if = new ConditionalExpression(
+      'value[param1] = value1 and value[param2] = value2');
+
+    $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
+      'value' => array(
+        'param1' => 'value1',
+        'param2' => 'value2'
+      )
+    ))));
+  }
+
+  public function testFullCnf() {
+    $exp = 'set1[k1] = v1 or set2[k1] = v1 or set3[k1] = v1 and
+            set1[k2] = v2 or set2[k2] = v2 or set3[k2] = v2 and
+            set1[k3] = v3 or set2[k3] = v3 or set3[k3] = v3';
+
+    $if = new ConditionalExpression($exp);
+
+    $toTest = array(
+      array(
+        'expected' => false,
+        'values' => array()
+      ),
+      array(
+        'expected' => true,
+        'values' => array(
+          'set1' => array(
+            'k1' => 'v1',
+            'k2' => 'v2',
+            'k3' => 'v3'
+          )
+        )
+      ),
+      array(
+        'expected' => true,
+        'values' => array(
+          'set1' => array(
+            'k1' => 'v1',
+            'k2' => 'v1',
+            'k3' => 'v1'
+          ),
+          'set2' => array(
+            'k1' => 'v2',
+            'k2' => 'v2',
+            'k3' => 'v2'
+          ),
+          'set3' => array(
+            'k1' => 'v3',
+            'k2' => 'v3',
+            'k3' => 'v3'
+          )
+        )
+      )
+    );
+
+    foreach ($toTest as $testCase) {
+      $this->assertEquals(
+        $testCase['expected'],
+        $if->isSatisfiedBy(new TemplateValues($testCase['values']))
+      );
+    }
+  }
 }

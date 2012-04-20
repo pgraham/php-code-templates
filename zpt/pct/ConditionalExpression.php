@@ -18,8 +18,8 @@ namespace zpt\pct;
  * This class encapsulates expression evaluation for a conditional clause of a
  * {@link ConditionalBlock}.
  *
- * TODO - Add support for 'and' boolean operators.  Bracketing will be implied,
- *        ORs will be grouped and separated by ANDs (Conjunctive normal form).
+ *   NOTE: There is a known issue that using any of the operators, or the words
+ *         'and' or 'or' as comparison values will not behave as expected.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
@@ -90,7 +90,7 @@ class ConditionalExpression {
    * ===========================================================================
    */
 
-  private $_conditions = array();
+  private $_conditions;
 
   /**
    * Create a new ConditionalExpression.
@@ -104,23 +104,68 @@ class ConditionalExpression {
 
     $ops = self::$_ops;
     $varRe = '[[:alnum:]_-]+(?:\[[[:alnum:]_-]+\])?';
-    $orRe = "\s*($varRe\s*(?:$ops\s*$varRe)?)\s*or\s*(.*)\s*";
+    $logicRe = "\s*($varRe\s*(?:$ops\s*$varRe)?)\s*(or|and)\s*(.*)\s*";
+
+    $curGroup = array();
 
     $exp = $expression;
     while ($exp !== null) {
       $matches = array();
-      if (preg_match("/$orRe/", $exp, $matches)) {
+      if (preg_match("/$logicRe/", $exp, $matches)) {
         $comp = trim($matches[1]);
-        $exp = trim($matches[2]);
+        $logic = trim($matches[2]);
+        $exp = trim($matches[3]);
 
-        $this->_buildCondition($comp);
+        $cond = $this->_buildCondition($comp);
 
       } else {
-        $this->_buildCondition($exp);
+        $cond = $this->_buildCondition($exp);
+        $logic = null;
         $exp = null;
       }
 
+      $curGroup[] = $cond;
+      if ($logic === 'and') {
+        $this->_conditions[] = $curGroup;
+        $curGroup = array();
+      }
     }
+    $this->_conditions[] = $curGroup;
+  }
+
+  /**
+   * Determines whether or not the encapsulated expression evaluates to true for
+   * the given set of values.
+   *
+   * @param Array $values Set of substitution values.
+   * @return boolean
+   */
+  public function isSatisfiedBy(TemplateValues $values) {
+    foreach ($this->_conditions as $group) {
+      $groupSatisfied = false;
+      foreach ($group as $cond) {
+        $val = $values->getValue($cond['name']);
+
+        if ($cond['val'] === null) {
+          if ($val === true) {
+            $groupSatisfied = true;
+            break;
+          }
+        } else {
+          $fn = self::$_opEvaluators[$cond['op']];
+          if ($fn($val, $cond['val'])) {
+            $groupSatisfied = true;
+            return true;
+          }
+        }
+      }
+
+      if (!$groupSatisfied) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private function _buildCondition($exp) {
@@ -137,37 +182,11 @@ class ConditionalExpression {
       $val = null;
     }
 
-    $this->_conditions[] = array(
+    return array(
       'name' => $name,
       'op'   => $op,
       'val'  => $val
     );
-  }
-
-  /**
-   * Determines whether or not the encapsulated expression evaluates to true for
-   * the given set of values.
-   *
-   * @param Array $values Set of substitution values.
-   * @return boolean
-   */
-  public function isSatisfiedBy(TemplateValues $values) {
-    foreach ($this->_conditions AS $cond) {
-      $val = $values->getValue($cond['name']);
-
-      if ($cond['val'] === null) {
-        if ($val === true) {
-          return true;
-        }
-      } else {
-        $fn = self::$_opEvaluators[$cond['op']];
-        if ($fn($val, $cond['val'])) {
-          return true;
-        }
-      }
-    }
-
-    return false;
   }
 
 }
