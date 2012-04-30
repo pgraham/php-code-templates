@@ -104,7 +104,7 @@ class ConditionalExpression {
 
     $ops = self::$_ops;
     $varRe = '[[:alnum:]_-]+(?:\[[[:alnum:]_-]+\])?';
-    $logicRe = "\s*($varRe\s*(?:$ops\s*$varRe)?)\s*(or|and)\s*(.*)\s*";
+    $logicRe = "\s*($varRe\s*(?:$ops\s*$varRe)?)\s+(or|and)\s+(.*)\s*";
 
     $curGroup = array();
 

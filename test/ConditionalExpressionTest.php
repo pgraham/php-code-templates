@@ -190,4 +190,20 @@ class ConditionalExpressionTest extends TestCase {
       );
     }
   }
+
+  public function testVariableNameWithOr() {
+    $if = new ConditionalExpression('support');
+
+    $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
+      'support' => true
+    ))));
+  }
+
+  public function testVariableNameWithAnd() {
+    $if = new ConditionalExpression('bland');
+
+    $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
+      'bland' => true
+    ))));
+  }
 }

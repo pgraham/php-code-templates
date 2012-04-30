@@ -158,4 +158,34 @@ class IfSubstitutionTest extends TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testNestedIfs() {
+    $parser = new CodeTemplateParser();
+
+    $ifCtnt = <<<EOT
+\${if:outer}
+  \${if:inner}
+    INNER
+  \${else}
+    NOT INNER
+  \${fi}
+\${fi}
+EOT;
+    $template = $parser->parse($ifCtnt);
+
+    $this->assertEquals('INNER', $template->forValues(array(
+      'outer' => true,
+      'inner' => true
+    )));
+
+    $this->assertEquals('NOT INNER', $template->forValues(array(
+      'outer' => true,
+      'inner' => false
+    )));
+
+    $this->assertEquals('', $template->forValues(array(
+      'outer' => false
+    )));
+
+  }
+
 }
