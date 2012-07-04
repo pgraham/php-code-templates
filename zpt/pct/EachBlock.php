@@ -68,6 +68,12 @@ class EachBlock extends CompositeBlock {
         $this->lineNum);
     }
 
+    // If the given value is an empty array return null to avoid extra white
+    // space in the containing code block
+    if (count($itr) === 0) {
+      return null;
+    }
+
     $eaches = array();
     foreach ($itr as $val) {
       $values[$this->_alias] = $val;

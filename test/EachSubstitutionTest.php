@@ -51,4 +51,21 @@ class EachSubstitutionTest extends TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testEachEmptySet() {
+    $parser = new CodeTemplateParser();
+
+    $eachCtnt = <<<TMPL
+Iteration to follow:
+\${each:itr as i}
+\${i}
+\${done}
+Post Iteration.
+TMPL;
+    $template = $parser->parse($eachCtnt);
+
+    $expected = "Iteration to follow:\nPost Iteration.";
+    $actual = $template->forValues(array( 'itr' => array() ));
+    $this->assertEquals($expected, $actual);
+  }
+
 }
