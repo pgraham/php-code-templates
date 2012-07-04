@@ -30,13 +30,17 @@ class ConditionalExpressionTest extends TestCase {
   public function testBooleanIf() {
     $if = new ConditionalExpression('value');
 
-    $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
-      'value' => true
-    ))));
-    $this->assertFalse($if->isSatisfiedBy(new TemplateValues(array(
-      'value' => false
-    ))));
-    $this->assertFalse($if->isSatisfiedBy(new TemplateValues(array())));
+    $this->assertTrue($if->isSatisfiedBy( array( 'value' => true ) ));
+    $this->assertFalse($if->isSatisfiedBy( array( 'value' => false ) ));
+    $this->assertFalse($if->isSatisfiedBy( array() ));
+
+    // Assert that an empty array value evaluates to false
+    $this->assertFalse($if->isSatisfiedBy( array( 'value' => array() ) ));
+
+    // Assert that a non-empty array value evaluates to true
+    $this->assertTrue($if->isSatisfiedBy( array(
+      'value' => array( array() )
+    ) ));
   }
 
   public function testBooleanIndexedOperand() {

@@ -14,6 +14,8 @@
  */
 namespace zpt\pct;
 
+use \Exception;
+
 /**
  * This class encapsulates expression evaluation for a conditional clause of a
  * {@link ConditionalBlock}.
@@ -140,14 +142,24 @@ class ConditionalExpression {
    * @param Array $values Set of substitution values.
    * @return boolean
    */
-  public function isSatisfiedBy(TemplateValues $values) {
+  public function isSatisfiedBy($values) {
+    if (is_array($values)) {
+      $values = new TemplateValues($values);
+    }
+
+    if (!($values instanceof TemplateValues)) {
+      throw new Exception("Given values must be either an array or a " .
+        "TemplateValues instance.");
+    }
+
     foreach ($this->_conditions as $group) {
       $groupSatisfied = false;
       foreach ($group as $cond) {
         $val = $values->getValue($cond['name']);
 
         if ($cond['val'] === null) {
-          if ($val === true) {
+          // Note the use of weak equality operator here.
+          if ($val == true) {
             $groupSatisfied = true;
             break;
           }
