@@ -188,4 +188,22 @@ EOT;
 
   }
 
+  public function testUnsatisfiedIf() {
+    $parser = new CodeTemplateParser();
+
+    $ifCtnt = <<<IF
+Before if.
+\${if:value}
+  Output
+\${fi}
+After if.
+IF;
+
+    $template = $parser->parse($ifCtnt);
+
+    $expected = "Before if.\nAfter if.";
+    $actual = $template->forValues( array() );
+
+    $this->assertEquals($expected, $actual);
+  }
 }
