@@ -110,4 +110,39 @@ EXPT;
     ));
     $this->assertEquals($expected, $actual);
   }
+
+  public function testPhpArrayOutputIndent() {
+    $parser = new CodeTemplateParser();
+
+    $tmpl = <<<TMPL
+foreach (\$i = 0; \$i < 10; \$i++) {
+  \$var = \${php:ar};
+}
+TMPL;
+    $template = $parser->parse($tmpl);
+
+    $expected = <<<EXPT
+foreach (\$i = 0; \$i < 10; \$i++) {
+  \$var = array (
+    0 => 
+    array (
+      'id' => 'id1',
+    ),
+    1 => 
+    array (
+      'id' => 'id2',
+    ),
+  );
+}
+EXPT;
+
+    $actual = $template->forValues(array(
+      'ar' => array(
+        array( 'id' => 'id1' ),
+        array( 'id' => 'id2' )
+      )
+    ));
+
+    $this->assertEquals($expected, $actual);
+  }
 }

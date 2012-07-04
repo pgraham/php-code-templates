@@ -24,11 +24,13 @@ namespace zpt\pct;
 class PhpSubstitution extends Substitution {
 
   private $_name;
+  private $_lineIndent;
 
-  public function __construct($name, $lineNum) {
+  public function __construct($name, $lineNum, $lineIndent) {
     parent::__construct($lineNum);
 
     $this->_name = $name;
+    $this->_lineIndent = $lineIndent;
   }
 
   public function getKey() {
@@ -36,6 +38,23 @@ class PhpSubstitution extends Substitution {
   }
 
   public function getValue(TemplateValues $values) {
-    return var_export($values->getValue($this->_name), true);
+    $php = var_export($values->getValue($this->_name), true);
+    if (preg_match('/^array \((.*)\)$/s', $php, $matches)) {
+      $indent = $this->_getIndent();
+
+      $arCtnt = $matches[1];
+      $arCtnt = str_replace("\n", "\n$indent", $arCtnt);
+
+      $php = "array ($arCtnt)";
+    }
+    return $php;
+  }
+
+  private function _getIndent() {
+    $indent = '';
+    for ($i = 0; $i < $this->_lineIndent; $i++) {
+      $indent .= '  ';
+    }
+    return $indent;
   }
 }

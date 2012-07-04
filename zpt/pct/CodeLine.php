@@ -95,7 +95,7 @@ class CodeLine {
     // Parse PHP output
     if (preg_match_all(self::PHP_RE, $this->_line, $phps, PREG_SET_ORDER)) {
       foreach ($phps as $php) {
-        $tag = new PhpSubstitution($php[1], $this->_lineNum);
+        $tag = new PhpSubstitution($php[1], $this->_lineNum, $this->_indent);
         $this->_tags[] = $tag;
       }
     }
