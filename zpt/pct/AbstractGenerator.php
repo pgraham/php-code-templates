@@ -24,45 +24,112 @@ use \SplFileObject;
  */
 abstract class AbstractGenerator {
 
-  private $_outputPath;
+  /*
+   * Namespace of generated classes.  Should be overridden by implementations.
+   */
+  protected static $actorNamespace = '';
+
+  /* Cache of instantiated actors. */
+  private static $_cache = array();
 
   /**
-   * Create a new generator that outputs to the given path.
+   * Retrieve an instance of the generated class for the given class definition.
+   *
+   * @param string $pageDef The name of the class that provides the definition
+   *   for the generated class.
+   */
+  public static function get($defClass) {
+    if (!array_key_exists($defClass, self::$_cache)) {
+      $actor = str_replace('\\', '_', $defClass);
+      $fq = static::$actorNamespace . "\\$actor";
+
+      self::$_cache[$defClass] = new $fq();
+    }
+
+    return self::$_cache[$defClass];
+  }
+
+  /*
+   * ===========================================================================
+   * Instance
+   * ===========================================================================
+   */
+
+  private $_outputPath;
+
+  private $_tmpl;
+
+  /**
+   * Create a new generator that outputs to the given path.  The given output
+   * path is used as a base path.  The generation logic will append a PSR-0
+   * compliant path to the specified path, taking into account both the value
+   * of static::$actorNamespace and the name of the actor itself.
+   *
+   * # Example
+   * For a class definition my\ns\Definition and the following
+   * implementation:
+   *
+   *     class MyGenerator extends AbstractGenerator {
+   *         protected static $actorNamespace = 'my\dynamic\ns';
+   *
+   *         public function __construct() {
+   *             parent::__construct('/path/to/site/target');
+   *         }
+   *
+   *         // ...
+   *     }
+   *
+   * The actor will be output at /path/to/site/target/my/dynamic/ns/my/ns/Definition.php
    *
    * @param string $outputPath The path for where to output the code.  This
    *   path must be writable by the current user.
    */
   public function __construct($outputPath) {
-    $this->_outputPath = $outputPath;
-    if (substr($this->_outputPath, -1) == '/') {
-      $this->_outputPath = substr($this->_outputPath, 0, -1);
-    }
+    $this->_outputPath = rtrim($outputPath, '/');
+    $this->_outputPath .= '/' . str_replace('\\', '/', static::$actorNamespace);
+
+    $parser = new CodeTemplateParser();
+    $this->_tmpl = $parser->parse(file_get_contents($this->getTemplatePath()));
   }
 
   /**
    * Generate the code.  This method delegates to the implementation for the
    * acutal generation then outputs to the specified path.
    *
-   * @param string $className The entity for which to generate code.
+   * @param string $defClass The definition for which to generate an actor.
    */
-  public function generate($className) {
-    $classBody = $this->_generate($className);
+  public function generate($defClass) {
+    $values = $this->getValues($defClass);
+    $values['actorNs'] = static::$actorNamespace;
+    $values['actorClass'] = str_replace('\\', '_', $defClass);
+    $resolved = $this->_tmpl->forValues($values);
 
-    $fileName = str_replace('\\', '/', $className) . '.php';
+    $fileName = str_replace('\\', '/', $defClass) . '.php';
 
     $fullPath = $this->_outputPath . '/' . $fileName;
     if (!file_exists(dirname($fullPath))) {
       mkdir(dirname($fullPath), 0755, true);
     }
     $file = new SplFileObject($fullPath, 'w');
-    $file->fwrite($classBody);
+    $file->fwrite($resolved);
   }
 
   /**
-   * This method is responsible for actually generating the actor code.
+   * This method is responsible for returning the path to the template that is
+   * used to generate the actor.
+   *
+   * @return string
+   */
+  protected abstract function getTemplatePath();
+
+  /**
+   * This method is responsible for actually generating the substitution values
+   * for generating the actor for the specified definition class.  These values
+   * will be substituted into the template specified by getTemplatePath().
    *
    * @param string $className The name of the definition class.
-   * @return string The PHP code for the generated actor.
+   * @return array Substitution values for generating the actor.
    */
-  protected abstract function _generate($className);
+  protected abstract function getValues($className);
+
 }
