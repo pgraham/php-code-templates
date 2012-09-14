@@ -102,6 +102,7 @@ abstract class AbstractGenerator {
     $values = $this->getValues($defClass);
     $values['actorNs'] = static::$actorNamespace;
     $values['actorClass'] = str_replace('\\', '_', $defClass);
+    $values['model'] = $defClass;
     $resolved = $this->_tmpl->forValues($values);
 
     $fileName = str_replace('\\', '/', $defClass) . '.php';
