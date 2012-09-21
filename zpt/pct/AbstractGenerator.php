@@ -105,12 +105,15 @@ abstract class AbstractGenerator {
     $values['model'] = $defClass;
     $resolved = $this->_tmpl->forValues($values);
 
-    $fileName = str_replace('\\', '/', $defClass) . '.php';
+    $fileName = str_replace(array('\\', '_'), '/', $defClass) . '.php';
 
     $fullPath = $this->_outputPath . '/' . $fileName;
-    if (!file_exists(dirname($fullPath))) {
-      mkdir(dirname($fullPath), 0755, true);
+
+    $dirPath = dirname($fullPath);
+    if (!file_exists($dirPath)) {
+      mkdir($dirPath, 0755, true);
     }
+
     $file = new SplFileObject($fullPath, 'w');
     $file->fwrite($resolved);
   }
