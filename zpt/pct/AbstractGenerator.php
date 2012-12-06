@@ -118,6 +118,10 @@ abstract class AbstractGenerator {
     $file->fwrite($resolved);
   }
 
+  public function getActorClassName($defClass) {
+    return static::$actorNamespace . '\\' . str_replace('\\', '_', $defClass);
+  }
+
   /**
    * This method is responsible for returning the path to the template that is
    * used to generate the actor.
