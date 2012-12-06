@@ -38,8 +38,8 @@ class PhpSubstitution extends Substitution {
   }
 
   public function getValue(TemplateValues $values) {
-    $php = var_export($values->getValue($this->_name), true);
-    if (preg_match('/^array \((.*)\)$/s', $php, $matches)) {
+    $php = $this->_varExport($values->getValue($this->_name));
+    if (preg_match('/^array\((.*)\)$/s', $php, $matches)) {
       $indent = $this->_getIndent();
 
       $arCtnt = $matches[1];
@@ -57,4 +57,25 @@ class PhpSubstitution extends Substitution {
     }
     return $indent;
   }
+
+  /*
+   * Private function to create a PHP representation of a given variable avoid
+   * a known issue with var_export and instances of StdClass.
+   */
+  private function _varExport($val) {
+    if (is_array($val)) {
+      $vals = array();
+      foreach ($val as $k => $v) {
+        $vals[] = $this->_varExport($k, true) . ' => ' . $this->_varExport($v);
+      }
+      return 'array(' . implode(',', $vals) . ')';
+
+    } else if (is_object($val) && get_class($val) === 'stdClass') {
+      return '(object) ' . $this->_varExport((array) $val);
+
+    } else {
+      return var_export($val, true);
+    }
+  }
+
 }
