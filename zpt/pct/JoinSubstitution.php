@@ -37,6 +37,10 @@ class JoinSubstitution extends Substitution {
 
   public function getValue(TemplateValues $values) {
     $val = $values->getValue($this->_name);
+    if ($val === null) {
+      return '';
+    }
+
     if (!is_array($val)) {
       throw new InvalidTypeException($this->_name, 'array', $val,
         $this->lineNum);
