@@ -23,16 +23,19 @@ class JoinSubstitution extends Substitution {
 
   private $_name;
   private $_glue;
+  private $_isPhp;
 
-  public function __construct($name, $glue, $lineNum) {
+  public function __construct($name, $glue, $isPhp, $lineNum) {
     parent::__construct($lineNum);
 
     $this->_name = $name;
     $this->_glue = $glue;
+    $this->_isPhp = $isPhp;
   }
 
   public function getKey() {
-    return '${join:' . $this->_name . ':' . $this->_glue . '}';
+    return '${join' . ($this->_isPhp ? '-php' : '') . ':' . $this->_name . ':' .
+           $this->_glue . '}';
   }
 
   public function getValue(TemplateValues $values) {
@@ -44,6 +47,14 @@ class JoinSubstitution extends Substitution {
     if (!is_array($val)) {
       throw new InvalidTypeException($this->_name, 'array', $val,
         $this->lineNum);
+    }
+
+    if ($this->_isPhp) {
+      $phpVals = array();
+      foreach ($val as $v) {
+        $phpVals[] = var_export($v, true);
+      }
+      $val = $phpVals;
     }
 
     return implode($this->_glue, $val);

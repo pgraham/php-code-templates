@@ -24,7 +24,7 @@ namespace zpt\pct;
  */
 class CodeLine {
 
-  const JOIN_RE = '/\$\{join:([^:]+):([^\}]+)\}/';
+  const JOIN_RE = '/\$\{join(-php)?:([^:]+):([^\}]+)\}/';
   const JSON_RE = '/\$\{json:([^\}]+)\}/';
   const PHP_RE = '/\$\{php:([^\}]+)\}/';
   const TAG_RE  = '/\$\{([[:alnum:]\[\]_-]+)\}/';
@@ -79,7 +79,8 @@ class CodeLine {
     // Parse joins
     if (preg_match_all(self::JOIN_RE, $this->_line, $joins, PREG_SET_ORDER)) {
       foreach ($joins as $join) {
-        $tag = new JoinSubstitution($join[1], $join[2], $this->_lineNum);
+        $tag = new JoinSubstitution($join[2], $join[3], $join[1] === '-php',
+          $this->_lineNum);
         $this->_tags[] = $tag;
       }
     }
