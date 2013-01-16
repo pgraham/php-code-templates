@@ -52,6 +52,10 @@ class ActorFactory
      */
     public function get($targetClass)
     {
+        if (is_object($targetClass)) {
+          $targetClass = get_class($targetClass);
+        }
+
         if (!$this->useCache) {
           return $this->createActor($targetClass);
         }
