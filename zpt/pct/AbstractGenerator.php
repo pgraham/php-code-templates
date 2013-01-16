@@ -27,27 +27,7 @@ abstract class AbstractGenerator {
   /*
    * Namespace of generated classes.  Should be overridden by implementations.
    */
-  protected static $actorNamespace = '';
-
-  /* Cache of instantiated actors. */
-  private static $_cache = array();
-
-  /**
-   * Retrieve an instance of the generated class for the given class definition.
-   *
-   * @param string $pageDef The name of the class that provides the definition
-   *   for the generated class.
-   */
-  public static function get($defClass) {
-    if (!array_key_exists($defClass, self::$_cache)) {
-      $actor = str_replace('\\', '_', $defClass);
-      $fq = static::$actorNamespace . "\\$actor";
-
-      self::$_cache[$defClass] = new $fq();
-    }
-
-    return self::$_cache[$defClass];
-  }
+  public static $actorNamespace = '';
 
   /*
    * ===========================================================================
