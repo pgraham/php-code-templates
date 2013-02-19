@@ -9,6 +9,7 @@
       {
           "name": "Philip Graham",
           "email": "philip@zeptech.ca"
+      }
     ],
     "autoload": {
       "psr-0": {
