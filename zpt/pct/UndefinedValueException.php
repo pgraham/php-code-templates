@@ -12,27 +12,17 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
-
-use \Exception;
+namespace zpt\pct;
 
 /**
- * This class encapsulates and exception that occurs durring template value
- * substitution.
+ * Exception for cases where a substitution value is undefined.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class SubstitutionException extends Exception {
+class UndefinedValueException extends SubstitutionException {
 
-  private $_lineNum;
-
-  public function __construct($message, $lineNum) {
-    parent::__construct($message);
-    $this->_lineNum = $lineNum;
+  public function __construct($name, $lineNum) {
+    parent::__construct("Substitution value for $name is not defined",
+      $lineNum);
   }
-
-  public function getLineNum() {
-    return $this->_lineNum;
-  }
-
 }

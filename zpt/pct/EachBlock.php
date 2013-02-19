@@ -12,7 +12,7 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
  * This class represents an ${each:name as alias} ... ${done} substitution block
@@ -66,6 +66,12 @@ class EachBlock extends CompositeBlock {
     if (!is_array($itr)) {
       throw new InvalidTypeException($this->_name, 'array', $itr,
         $this->lineNum);
+    }
+
+    // If the given value is an empty array return null to avoid extra white
+    // space in the containing code block
+    if (count($itr) === 0) {
+      return null;
     }
 
     $eaches = array();

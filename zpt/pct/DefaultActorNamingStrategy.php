@@ -1,7 +1,7 @@
 <?php
 /**
  * =============================================================================
- * Copyright (c) 2012, Philip Graham
+ * Copyright (c) 2011, Philip Graham
  * All rights reserved.
  *
  * This file is part of php-code-templates and is licensed by the Copyright
@@ -12,28 +12,18 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
- * Base class for all Clode blocks clauses.
+ * Default naming strategy for aspects.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class CodeBlock implements Block {
+class DefaultActorNamingStrategy implements ActorNamingStrategyInterface
+{
 
-  private $_lines = array();
-
-  public function addLine(CodeLine $line) {
-    $this->_lines[] = $line;
-  }
-
-  public function forValues($values) {
-    $substituted = array();
-    foreach ($this->_lines AS $line) {
-      $lineVal = $line->forValues($values);
-      $substituted[] = $line->forValues($values);
+    public function getActorName($targetClass)
+    {
+        return str_replace('\\', '_', $targetClass);
     }
-    return  implode("\n", $substituted);
-  }
-
 }

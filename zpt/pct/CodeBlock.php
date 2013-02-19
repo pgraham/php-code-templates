@@ -12,29 +12,28 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
- * This class represents a json tag substitution in a line of a code template.
+ * Base class for all Clode blocks clauses.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class JsonSubstitution extends Substitution {
+class CodeBlock implements Block {
 
-  private $_name;
+  private $_lines = array();
 
-  public function __construct($name, $lineNum) {
-    parent::__construct($lineNum);
-
-    $this->_name = $name;
+  public function addLine(CodeLine $line) {
+    $this->_lines[] = $line;
   }
 
-  public function getKey() {
-    return '${json:' . $this->_name . '}';
-  }
-
-  public function getValue(TemplateValues $values) {
-    return json_encode($values->getValue($this->_name));
+  public function forValues($values) {
+    $substituted = array();
+    foreach ($this->_lines AS $line) {
+      $lineVal = $line->forValues($values);
+      $substituted[] = $line->forValues($values);
+    }
+    return  implode("\n", $substituted);
   }
 
 }

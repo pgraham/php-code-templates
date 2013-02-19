@@ -12,7 +12,7 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
  * Block implementation that consists solely of child Blocks.  Children can be

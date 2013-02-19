@@ -12,18 +12,29 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
- * This class encapsulates base behaviour for inline tag substitutions.
+ * This class represents a json tag substitution in a line of a code template.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-abstract class Substitution {
+class JsonSubstitution extends Substitution {
 
-  protected $lineNum;
+  private $_name;
 
-  protected function __construct($lineNum) {
-    $this->lineNum = $lineNum;
+  public function __construct($name, $lineNum) {
+    parent::__construct($lineNum);
+
+    $this->_name = $name;
   }
+
+  public function getKey() {
+    return '${json:' . $this->_name . '}';
+  }
+
+  public function getValue(TemplateValues $values) {
+    return json_encode($values->getValue($this->_name));
+  }
+
 }

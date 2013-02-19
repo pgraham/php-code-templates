@@ -12,11 +12,11 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct\test;
+namespace zpt\pct\test;
 
-use \pct\CodeLine;
-use \pct\SubstitutionException;
-use \pct\TemplateValues;
+use \zpt\pct\CodeLine;
+use \zpt\pct\SubstitutionException;
+use \zpt\pct\TemplateValues;
 
 use \PHPUnit_Framework_TestCase as TestCase;
 

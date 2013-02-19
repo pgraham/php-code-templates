@@ -12,28 +12,18 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
- * This class represents a simple tag substitution in a line of a code template.
+ * This class encapsulates base behaviour for inline tag substitutions.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class TagSubstitution extends Substitution {
+abstract class Substitution {
 
-  private $_name;
+  protected $lineNum;
 
-  public function __construct($name, $lineNum) {
-    parent::__construct($lineNum);
-
-    $this->_name = $name;
-  }
-  
-  public function getKey() {
-    return '${'. $this->_name . '}';
-  }
-
-  public function getValue(TemplateValues $values) {
-    return $values->getValue($this->_name);
+  protected function __construct($lineNum) {
+    $this->lineNum = $lineNum;
   }
 }

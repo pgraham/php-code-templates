@@ -12,10 +12,10 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct\test;
+namespace zpt\pct\test;
 
-use \pct\CodeTemplateParser;
-use \pct\TemplateValues;
+use \zpt\pct\CodeTemplateParser;
+use \zpt\pct\TemplateValues;
 use \PHPUnit_Framework_TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';

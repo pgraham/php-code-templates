@@ -12,10 +12,10 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct\test;
+namespace zpt\pct\test;
 
-use \pct\ConditionalExpression;
-use \pct\TemplateValues;
+use \zpt\pct\ConditionalExpression;
+use \zpt\pct\TemplateValues;
 use \PHPUnit_Framework_TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
@@ -30,13 +30,17 @@ class ConditionalExpressionTest extends TestCase {
   public function testBooleanIf() {
     $if = new ConditionalExpression('value');
 
-    $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
-      'value' => true
-    ))));
-    $this->assertFalse($if->isSatisfiedBy(new TemplateValues(array(
-      'value' => false
-    ))));
-    $this->assertFalse($if->isSatisfiedBy(new TemplateValues(array())));
+    $this->assertTrue($if->isSatisfiedBy( array( 'value' => true ) ));
+    $this->assertFalse($if->isSatisfiedBy( array( 'value' => false ) ));
+    $this->assertFalse($if->isSatisfiedBy( array() ));
+
+    // Assert that an empty array value evaluates to false
+    $this->assertFalse($if->isSatisfiedBy( array( 'value' => array() ) ));
+
+    // Assert that a non-empty array value evaluates to true
+    $this->assertTrue($if->isSatisfiedBy( array(
+      'value' => array( array() )
+    ) ));
   }
 
   public function testBooleanIndexedOperand() {
@@ -125,5 +129,85 @@ class ConditionalExpressionTest extends TestCase {
       'value' => 'anything'
     ))));
     $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array())));
+  }
+
+  public function testAndOperator() {
+    $if = new ConditionalExpression(
+      'value[param1] = value1 and value[param2] = value2');
+
+    $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
+      'value' => array(
+        'param1' => 'value1',
+        'param2' => 'value2'
+      )
+    ))));
+  }
+
+  public function testFullCnf() {
+    $exp = 'set1[k1] = v1 or set2[k1] = v1 or set3[k1] = v1 and
+            set1[k2] = v2 or set2[k2] = v2 or set3[k2] = v2 and
+            set1[k3] = v3 or set2[k3] = v3 or set3[k3] = v3';
+
+    $if = new ConditionalExpression($exp);
+
+    $toTest = array(
+      array(
+        'expected' => false,
+        'values' => array()
+      ),
+      array(
+        'expected' => true,
+        'values' => array(
+          'set1' => array(
+            'k1' => 'v1',
+            'k2' => 'v2',
+            'k3' => 'v3'
+          )
+        )
+      ),
+      array(
+        'expected' => true,
+        'values' => array(
+          'set1' => array(
+            'k1' => 'v1',
+            'k2' => 'v1',
+            'k3' => 'v1'
+          ),
+          'set2' => array(
+            'k1' => 'v2',
+            'k2' => 'v2',
+            'k3' => 'v2'
+          ),
+          'set3' => array(
+            'k1' => 'v3',
+            'k2' => 'v3',
+            'k3' => 'v3'
+          )
+        )
+      )
+    );
+
+    foreach ($toTest as $testCase) {
+      $this->assertEquals(
+        $testCase['expected'],
+        $if->isSatisfiedBy(new TemplateValues($testCase['values']))
+      );
+    }
+  }
+
+  public function testVariableNameWithOr() {
+    $if = new ConditionalExpression('support');
+
+    $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
+      'support' => true
+    ))));
+  }
+
+  public function testVariableNameWithAnd() {
+    $if = new ConditionalExpression('bland');
+
+    $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
+      'bland' => true
+    ))));
   }
 }

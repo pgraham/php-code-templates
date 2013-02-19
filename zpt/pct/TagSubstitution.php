@@ -12,17 +12,28 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace pct;
+namespace zpt\pct;
 
 /**
- * Exception for cases where a substitution value is undefined.
+ * This class represents a simple tag substitution in a line of a code template.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class UndefinedValueException extends SubstitutionException {
+class TagSubstitution extends Substitution {
+
+  private $_name;
 
   public function __construct($name, $lineNum) {
-    parent::__construct("Substitution value for $name is not defined",
-      $lineNum);
+    parent::__construct($lineNum);
+
+    $this->_name = $name;
+  }
+  
+  public function getKey() {
+    return '${'. $this->_name . '}';
+  }
+
+  public function getValue(TemplateValues $values) {
+    return $values->getValue($this->_name);
   }
 }

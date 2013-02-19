@@ -10,12 +10,29 @@
  * distribution or at the link below.
  * =============================================================================
  *
- * This file sets up the environment for running tests.
- *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
+namespace zpt\pct;
 
-require 'SplClassLoader.php';
+use \Exception;
 
-$loader = new SplClassLoader('zpt\pct', __DIR__ . '/..');
-$loader->register();
+/**
+ * This class encapsulates and exception that occurs durring template value
+ * substitution.
+ *
+ * @author Philip Graham <philip@zeptech.ca>
+ */
+class SubstitutionException extends Exception {
+
+  private $_lineNum;
+
+  public function __construct($message, $lineNum) {
+    parent::__construct($message);
+    $this->_lineNum = $lineNum;
+  }
+
+  public function getLineNum() {
+    return $this->_lineNum;
+  }
+
+}

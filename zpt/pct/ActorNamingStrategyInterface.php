@@ -1,7 +1,7 @@
 <?php
 /**
  * =============================================================================
- * Copyright (c) 2012, Philip Graham
+ * Copyright (c) 2011, Philip Graham
  * All rights reserved.
  *
  * This file is part of php-code-templates and is licensed by the Copyright
@@ -12,27 +12,23 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace zpt\pct\test;
-
-use \zpt\pct\CodeTemplateParser;
-use \zpt\pct\SyntaxExpression;
-use \PHPUnit_Framework_TestCase as TestCase;
-
-require_once __DIR__ . '/test-common.php';
+namespace zpt\pct;
 
 /**
- * This class tests that syntax errors are properly reported.
+ * Interface for classes that providing naming for actors.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class SyntaxText extends TestCase {
+interface ActorNamingStrategyInterface
+{
 
-  public function testUndefinedSubstitutionValue() {
-    // TODO
-  }
-
-  public function testOutOfOrderBlockClosing() {
-    // TODO
-  }
-
+    /**
+     * Get the basename of any aspect of the specified target class. Aspects
+     * which provide different functionality for the same target class will all
+     * have the same base name and will be differentiated by their namespace.
+     *
+     * @param string $targetClass
+     */
+    public function getActorName($targetClass);
+    
 }
