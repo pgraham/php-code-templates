@@ -1,5 +1,21 @@
 {
     "name": "zeptech/code-templates",
+    "type": "library",
+    "description": "Code generation support for PHP",
+    "keywords": [ "templating", "code", "generation" ],
+    "homepage": "https://github.com/pgraham/php-code-templates",
+    "license": "BSD",
+    "authors": [
+      {
+          "name": "Philip Graham",
+          "email": "philip@zeptech.ca"
+    ],
+    "autoload": {
+      "psr-0": {
+        "zpt\\pct": ""
+      }
+    },
     "require": {
+      "php": ">=5.3.0"
     }
 }
