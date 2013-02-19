@@ -35,4 +35,8 @@ class SyntaxText extends TestCase {
     // TODO
   }
 
+  public function testUnclosedBlock() {
+    // TODO
+  }
+
 }
