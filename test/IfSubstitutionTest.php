@@ -30,7 +30,7 @@ class IfSubstitutionTest extends TestCase {
   public function testBooleanIf() {
     $parser = new CodeTemplateParser();
 
-    $ifCtnt = "\${if:boolval}\nI am true\n\${else}\nI am false\${fi}";
+    $ifCtnt = "#{if boolval\nI am true\n#{ else\nI am false\n#}";
     $template = $parser->parse($ifCtnt);
 
     // Assert structure of parsed code template
@@ -73,15 +73,15 @@ class IfSubstitutionTest extends TestCase {
     $parser = new CodeTemplateParser();
 
     $ifCtnt = 
-      "\${if:val = val1}\n" .
+      "#{ if val = val1\n" .
       "I am val1\n" .
-      "\${elseif:val = val2}\n" .
+      "#{ elseif val = val2\n" .
       "I am val2\n" .
-      "\${elseif:val = val3}\n" .
+      "#{ elseif val = val3\n" .
       "I am val3\n" .
-      "\${else}\n" .
+      "#{ else\n" .
       "I am another value\n" .
-      "\${fi}";
+      "#}";
     $template = $parser->parse($ifCtnt);
 
     // Assert Structure of parsed code template
@@ -162,13 +162,13 @@ class IfSubstitutionTest extends TestCase {
     $parser = new CodeTemplateParser();
 
     $ifCtnt = <<<EOT
-\${if:outer}
-  \${if:inner}
+#{ if outer
+  #{ if inner
     INNER
-  \${else}
+  #{ else
     NOT INNER
-  \${fi}
-\${fi}
+  #}
+#}
 EOT;
     $template = $parser->parse($ifCtnt);
 
@@ -193,9 +193,9 @@ EOT;
 
     $ifCtnt = <<<IF
 Before if.
-\${if:value}
+#{ if value
   Output
-\${fi}
+#}
 After if.
 IF;
 

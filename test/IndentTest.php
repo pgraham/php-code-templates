@@ -30,9 +30,9 @@ class IndentTest extends TestCase {
     $parser = new CodeTemplateParser();
 
     $tmpl = <<<TMPL
-\${if:boolval}
+#{ if boolval
   I am true.
-\${fi}
+#}
 TMPL;
 
     $template = $parser->parse($tmpl);
@@ -46,10 +46,10 @@ TMPL;
     $parser = new CodeTemplateParser();
 
     $tmpl = <<<TMPL
-\${if:boolval}
+#{ if boolval
   I am true.
   Seriously.
-\${fi}
+#}
 TMPL;
 
     $template = $parser->parse($tmpl);
@@ -64,9 +64,9 @@ TMPL;
 
     $tmpl = <<<TMPL
 foreach (\$i = 0; \$i < 10; \$i++) {
-  \${each:stmts as stmt}
-    \${stmt};
-  \${done}
+  #{ each stmts as stmt
+    /*# stmt */;
+  #}
 }
 TMPL;
 
@@ -89,10 +89,10 @@ EXPT;
 
     $tmpl = <<<TMPL
 foreach (\$i = 0; \$i < 10; \$i++) {
-  \${each:stmts as stmt}
-    \${stmt};
+  #{ each stmts as stmt
+    /*# stmt */;
     \$v = 'another stmt';
-  \${done}
+  #}
 }
 TMPL;
 
@@ -116,7 +116,7 @@ EXPT;
 
     $tmpl = <<<TMPL
 foreach (\$i = 0; \$i < 10; \$i++) {
-  \$var = \${php:ar};
+  \$var = /*# php:ar */;
 }
 TMPL;
     $template = $parser->parse($tmpl);

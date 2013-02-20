@@ -21,16 +21,18 @@ namespace zpt\pct;
  */
 class JsonSubstitution extends Substitution {
 
+  private $_key;
   private $_name;
 
-  public function __construct($name, $lineNum) {
+  public function __construct($key, $name, $lineNum) {
     parent::__construct($lineNum);
 
+    $this->_key = $key;
     $this->_name = $name;
   }
 
   public function getKey() {
-    return '${json:' . $this->_name . '}';
+    return $this->_key;
   }
 
   public function getValue(TemplateValues $values) {

@@ -21,21 +21,22 @@ namespace zpt\pct;
  */
 class JoinSubstitution extends Substitution {
 
+  private $_key;
   private $_name;
   private $_glue;
   private $_isPhp;
 
-  public function __construct($name, $glue, $isPhp, $lineNum) {
+  public function __construct($key, $name, $glue, $isPhp, $lineNum) {
     parent::__construct($lineNum);
 
+    $this->_key = $key;
     $this->_name = $name;
     $this->_glue = $glue;
     $this->_isPhp = $isPhp;
   }
 
   public function getKey() {
-    return '${join' . ($this->_isPhp ? '-php' : '') . ':' . $this->_name . ':' .
-           $this->_glue . '}';
+    return $this->_key;
   }
 
   public function getValue(TemplateValues $values) {

@@ -31,16 +31,12 @@ class SimpleTemplateTest extends TestCase {
   public function testSingleCodeBlockWithTagSubstitutions() {
     $parser = new CodeTemplateParser();
 
-    $templateCtnt = file_get_contents(__DIR__ . '/templates/simple.template');
+    $templateCtnt = file_get_contents(__DIR__ . '/templates/simple.tmpl.php');
     $template = $parser->parse($templateCtnt);
 
-    $keys = array('sub1', 'sub2', 'sub3');
-    $vals = array('val1', 'val2', 'val3');
-    $expected = str_replace(
-      array_map(function ($key) { return '${' . $key . '}'; }, $keys),
-      $vals,
-      $templateCtnt
-    );
+    $keys = array('sub1', 'sub2', 'sub3', 'inline');
+    $vals = array('val1', 'val2', 'val3', 'inline');
+    $expected = file_get_contents(__DIR__ . '/templates/simple.expected');
 
     $actual = $template->forValues(new TemplateValues(
       array_combine($keys, $vals)

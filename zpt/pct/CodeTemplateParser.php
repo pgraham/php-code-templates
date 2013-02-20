@@ -22,12 +22,17 @@ namespace zpt\pct;
  */
 class CodeTemplateParser {
 
-  const DONE_RE   = '/^[\t ]*\$\{done\}/';
-  const EACH_RE   = '/^[\t ]*\$\{each:([^\}]+)\}/';
-  const ELSE_RE   = '/^[\t ]*\$\{else\}$/';
-  const ELSEIF_RE = '/^[\t ]*\$\{elseif:([^\}]+)\}$/';
-  const FI_RE     = '/^[\t ]*\$\{fi\}$/';
-  const IF_RE     = '/^[\t ]*\$\{if:([^\}]+)\}$/';
+  const IF_RE      = '/^\s*#\{\s*if\s+(.+)$/';
+  const ELSEIF_RE  = '/^\s*#\{\s*elseif\s+(.+)$/';
+  const ELSE_RE    = '/^\s*#\{\s*else\s*$/';
+
+  const SWITCH_RE  = '/^\s*#\{\s*switch\s+(.+)$/';
+  const CASE_RE    = '/^\s*#\|\s*case\s+(.+)$/';
+  const DEFAULT_RE = '/^\s*#\|\s*default\s*$/';
+
+  const EACH_RE    = '/^\s*#\{\s*each\s+(.+)$/';
+
+  const CLOSE_RE   = '/^\s*#\}\s*$/';
 
   /* String that constitutes a level of indentation in the template */
   private $_indentString = '  ';
@@ -36,7 +41,7 @@ class CodeTemplateParser {
    * Parse the given code and populate the given CodeTemplate.
    *
    * @param string $code The code to parse.
-   * @param CodeTemplate $template The template to populate.
+   * @return CodeTemplate
    */
   public function parse($code) {
     $template = new CodeTemplate();
@@ -80,10 +85,6 @@ class CodeTemplateParser {
 
         $curBlock = null;
 
-      } else if (preg_match(self::FI_RE, $line)) {
-        array_pop($blockStack);
-        $curBlock = null;
-
       } else if (preg_match(self::EACH_RE, $line, $matches)) {
         $eachBlock = new EachBlock($matches[1], $lineNum);
 
@@ -93,7 +94,7 @@ class CodeTemplateParser {
 
         $curBlock = null;
 
-      } else if (preg_match(self::DONE_RE, $line)) {
+      } else if (preg_match(self::CLOSE_RE, $line)) {
         array_pop($blockStack);
         $curBlock = null;
 

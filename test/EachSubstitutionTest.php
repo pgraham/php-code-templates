@@ -30,7 +30,7 @@ class EachSubstitutionTest extends TestCase {
   public function testEach() {
     $parser = new CodeTemplateParser();
 
-    $eachCtnt = "\${each:itr as i}\n\${i}\n\${done}";
+    $eachCtnt = "#{ each itr as i\n/*# i */\n#}";
     $template = $parser->parse($eachCtnt);
 
     // Assert structure of parsed template
@@ -56,9 +56,9 @@ class EachSubstitutionTest extends TestCase {
 
     $eachCtnt = <<<TMPL
 Iteration to follow:
-\${each:itr as i}
-\${i}
-\${done}
+#{ each itr as i
+/*# i */
+#}
 Post Iteration.
 TMPL;
     $template = $parser->parse($eachCtnt);

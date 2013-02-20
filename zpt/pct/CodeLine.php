@@ -24,10 +24,16 @@ namespace zpt\pct;
  */
 class CodeLine {
 
-  const JOIN_RE = '/\$\{join(-php)?:([^:]+):([^\}]+)\}/';
-  const JSON_RE = '/\$\{json:([^\}]+)\}/';
-  const PHP_RE = '/\$\{php:([^\}]+)\}/';
-  const TAG_RE  = '/\$\{([[:alnum:]\[\]_-]+)\}/';
+  // TODO Switch the order tof the glue and the variable so that it is possible
+  //      specify whitespace in the glue string without it being ambiguous with
+  //      whitespace at the end of the substitution expression
+  const JOIN_RE = '~/\*#\s*join(-php)?:([\w\-]+(?:\[[\w\-]+\])?):(.+?)\s*\*/~';
+
+  const JSON_RE = '~/\*#\s*json:([\w\-]+(?:\[[\w\-]+\])?)\s*\*/~';
+
+  const PHP_RE = '~/\*#\s*php:([\w\-]+(?:\[[\w\-]+\])?)\s*\*/~';
+
+  const TAG_RE = '~/\*#\s*([\w\-]+(?:\[[\w\-]+\])?)\s*\*/~';
 
   private $_indent = 0;
   private $_line;
@@ -79,8 +85,13 @@ class CodeLine {
     // Parse joins
     if (preg_match_all(self::JOIN_RE, $this->_line, $joins, PREG_SET_ORDER)) {
       foreach ($joins as $join) {
-        $tag = new JoinSubstitution($join[2], $join[3], $join[1] === '-php',
-          $this->_lineNum);
+        $tag = new JoinSubstitution(
+          $join[0],
+          $join[2],
+          $join[3],
+          $join[1] === '-php',
+          $this->_lineNum
+        );
         $this->_tags[] = $tag;
       }
     }
@@ -88,7 +99,7 @@ class CodeLine {
     // Parse JSON outputs
     if (preg_match_all(self::JSON_RE, $this->_line, $jsons, PREG_SET_ORDER)) {
       foreach ($jsons as $json) {
-        $tag = new JsonSubstitution($json[1], $this->_lineNum);
+        $tag = new JsonSubstitution($json[0], $json[1], $this->_lineNum);
         $this->_tags[] = $tag;
       }
     }
@@ -96,7 +107,12 @@ class CodeLine {
     // Parse PHP output
     if (preg_match_all(self::PHP_RE, $this->_line, $phps, PREG_SET_ORDER)) {
       foreach ($phps as $php) {
-        $tag = new PhpSubstitution($php[1], $this->_lineNum, $this->_indent);
+        $tag = new PhpSubstitution(
+          $php[0],
+          $php[1],
+          $this->_lineNum,
+          $this->_indent
+        );
         $this->_tags[] = $tag;
       }
     }
@@ -104,7 +120,7 @@ class CodeLine {
     // Parse normal substitutions
     if (preg_match_all(self::TAG_RE, $this->_line, $tags, PREG_SET_ORDER)) {
       foreach ($tags as $tag) {
-        $tag = new TagSubstitution($tag[1], $this->_lineNum);
+        $tag = new TagSubstitution($tag[0], $tag[1], $this->_lineNum);
         $this->_tags[] = $tag;
       }
     }

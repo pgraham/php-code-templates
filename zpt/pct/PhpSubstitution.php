@@ -23,18 +23,20 @@ namespace zpt\pct;
  */
 class PhpSubstitution extends Substitution {
 
+  private $_key;
   private $_name;
   private $_lineIndent;
 
-  public function __construct($name, $lineNum, $lineIndent) {
+  public function __construct($key, $name, $lineNum, $lineIndent) {
     parent::__construct($lineNum);
 
+    $this->_key = $key;
     $this->_name = $name;
     $this->_lineIndent = $lineIndent;
   }
 
   public function getKey() {
-    return '${php:' . $this->_name . '}';
+    return $this->_key;
   }
 
   public function getValue(TemplateValues $values) {

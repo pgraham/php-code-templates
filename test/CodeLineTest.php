@@ -31,10 +31,10 @@ class CodeLineTest extends TestCase {
 
   public function testSingleTagSubstitution() {
     $data = array(
-      array('${sub}', 'val'),
-      array('${sub} at beginning', 'val at beginning'),
-      array('at end ${sub}', 'at end val'),
-      array('the value ${sub} in the middle', 'the value val in the middle')
+      array('/*# sub */', 'val'),
+      array('/*# sub */ at beginning', 'val at beginning'),
+      array('at end /*# sub */', 'at end val'),
+      array('the value /*# sub */ in the middle', 'the value val in the middle')
     );
 
     foreach ($data AS $test) {
@@ -48,15 +48,15 @@ class CodeLineTest extends TestCase {
 
   public function testMultipleTagSubstitution() {
     $data = array(
-      array('${sub1}${sub2}', 'val1val2'),
-      array('${sub1}${sub2} at beginning', 'val1val2 at beginning'),
-      array('at end ${sub1}${sub2}', 'at end val1val2'),
-      array('value ${sub1}${sub2} in middle', 'value val1val2 in middle'),
-      array('${sub1} ${sub2}', 'val1 val2'),
-      array('${sub1} ${sub2} at beginning', 'val1 val2 at beginning'),
-      array('at end ${sub1} ${sub2}', 'at end val1 val2'),
-      array('value ${sub1} ${sub2} in middle', 'value val1 val2 in middle'),
-      array('${sub1} split ${sub2}', 'val1 split val2')
+      array('/*# sub1 *//*# sub2 */', 'val1val2'),
+      array('/*# sub1 *//*# sub2 */ at beginning', 'val1val2 at beginning'),
+      array('at end /*# sub1 *//*# sub2 */', 'at end val1val2'),
+      array('value /*# sub1 *//*# sub2 */ in middle', 'value val1val2 in middle'),
+      array('/*# sub1 */ /*# sub2 */', 'val1 val2'),
+      array('/*# sub1 */ /*# sub2 */ at beginning', 'val1 val2 at beginning'),
+      array('at end /*# sub1 */ /*# sub2 */', 'at end val1 val2'),
+      array('value /*# sub1 */ /*# sub2 */ in middle', 'value val1 val2 in middle'),
+      array('/*# sub1 */ split /*# sub2 */', 'val1 split val2')
     );
 
     foreach ($data AS $test) {
@@ -72,7 +72,7 @@ class CodeLineTest extends TestCase {
   }
 
   public function testJsonSubstitution() {
-    $codeLine = new CodeLine('${json:json}', 1);
+    $codeLine = new CodeLine('/*# json:json */', 1);
 
     $expected = '{"key1":"val1","key2":[1,2,3]}';
     $actual = $codeLine->forValues(new TemplateValues(array(
@@ -86,16 +86,18 @@ class CodeLineTest extends TestCase {
   }
 
   public function testJoinSubstitution() {
-    $codeLine = new CodeLine('${join:join:,}', 1);
+    $codeLine = new CodeLine('/*# join:join:, */', 1);
 
     $expected = 'val1,val2,val3';
     $actual = $codeLine->forValues(new TemplateValues(array(
-      'join' => array( 'val1', 'val2', 'val2' )
+      'join' => array( 'val1', 'val2', 'val3' )
     )));
+
+    $this->assertEquals($expected, $actual);
   }
 
   public function testJoinNotArray() {
-    $codeLine = new CodeLine('${join:join:,}', 1);
+    $codeLine = new CodeLine('/*# join:join:, */', 1);
 
     try {
       $codeLine->forValues(new TemplateValues(array(
