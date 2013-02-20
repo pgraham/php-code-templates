@@ -86,6 +86,16 @@ class ConditionalExpression {
     );
   }
 
+  /**
+   * Static function to determine if the specified string is a valid operator.
+   *
+   * @param string $op
+   * @return boolean
+   */
+  public static function isValidOperator($op) {
+    return preg_match('/' . self::$_ops . '/', trim($op));
+  }
+
   /*
    * ===========================================================================
    * Instance
@@ -133,6 +143,18 @@ class ConditionalExpression {
       }
     }
     $this->_conditions[] = $curGroup;
+  }
+
+  public function __toString() {
+    $ands = array();
+    foreach ($this->_conditions as $conditionGroup) {
+      $ors = array();
+      foreach ($conditionGroup as $condition) {
+        $ors[] = "$condition[name] $condition[op] $condition[val]";
+      }
+      $ands[] = implode(' OR ', $ors);
+    }
+    return implode(' AND ', $ands);
   }
 
   /**
@@ -192,6 +214,14 @@ class ConditionalExpression {
       $name = $exp;
       $op = null;
       $val = null;
+    }
+
+    if (is_numeric($val)) {
+      $val = (float) $val;
+
+      if ((int) $val == $val) {
+        $val = (int) $val;
+      }
     }
 
     return array(

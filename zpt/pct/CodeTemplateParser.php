@@ -43,77 +43,115 @@ class CodeTemplateParser {
    * @param string $code The code to parse.
    * @return CodeTemplate
    */
-  public function parse($code) {
+  public function parse($code, $templatePath = '-- CODE --') {
     $template = new CodeTemplate();
 
     $lines = explode("\n", $code);
 
-    // Current nested chain of CompositeBlocks
+    // Current nested chain of CompositeBlocks -- A quick trick block stack
     $blockStack = array( $template );
 
     // The current CodeBlock to which CodeLines are being added.
     $curBlock = null;
 
-    $lineNum = 0;
-    foreach ($lines AS $line) {
-      $lineNum++;
+    try {
+      $lineNum = 0;
+      foreach ($lines AS $line) {
+        $lineNum++;
 
-      if (preg_match(self::IF_RE, $line, $matches)) {
-        $ifBlock = new ConditionalBlock($matches[1], $lineNum);
+        if (preg_match(self::IF_RE, $line, $matches)) {
+          $ifBlock = new ConditionalBlock($matches[1], $lineNum);
 
-        $headBlock = end($blockStack);
-        $headBlock->addBlock($ifBlock);
-        array_push($blockStack, $ifBlock);
-
-        $curBlock = null;
-
-      } else if (preg_match(self::ELSEIF_RE, $line, $matches)) {
-        $elseIfBlock = new ConditionalBlock($matches[1], $lineNum);
-
-        $headBlock = array_pop($blockStack);
-        $headBlock->setElse($elseIfBlock);
-        array_push($blockStack, $elseIfBlock);
-
-        $curBlock = null;
-
-      } else if (preg_match(self::ELSE_RE, $line)) {
-        $elseBlock = new ConditionalBlock(null, $lineNum);
-
-        $headBlock = array_pop($blockStack);
-        $headBlock->setElse($elseBlock);
-        array_push($blockStack, $elseBlock);
-
-        $curBlock = null;
-
-      } else if (preg_match(self::EACH_RE, $line, $matches)) {
-        $eachBlock = new EachBlock($matches[1], $lineNum);
-
-        $headBlock = end($blockStack);
-        $headBlock->addBlock($eachBlock);
-        array_push($blockStack, $eachBlock);
-
-        $curBlock = null;
-
-      } else if (preg_match(self::CLOSE_RE, $line)) {
-        array_pop($blockStack);
-        $curBlock = null;
-
-      } else {
-        if ($curBlock === null) {
-          $curBlock = new CodeBlock();
-
-          // Add the new code block to the head of block stack
           $headBlock = end($blockStack);
-          $headBlock->addBlock($curBlock);
+          $headBlock->addBlock($ifBlock);
+          array_push($blockStack, $ifBlock);
+
+          $curBlock = null;
+
+        } else if (preg_match(self::ELSEIF_RE, $line, $matches)) {
+          $elseIfBlock = new ConditionalBlock($matches[1], $lineNum);
+
+          $headBlock = array_pop($blockStack);
+          $headBlock->setElse($elseIfBlock);
+          array_push($blockStack, $elseIfBlock);
+
+          $curBlock = null;
+
+        } else if (preg_match(self::ELSE_RE, $line)) {
+          $elseBlock = new ConditionalBlock(null, $lineNum);
+
+          $headBlock = array_pop($blockStack);
+          $headBlock->setElse($elseBlock);
+          array_push($blockStack, $elseBlock);
+
+          $curBlock = null;
+
+        } else if (preg_match(self::SWITCH_RE, $line, $matches)) {
+          $switchBlock = new SwitchBlock($matches[1], $lineNum);
+
+          $headBlock = end($blockStack);
+          $headBlock->addBlock($switchBlock);
+          array_push($blockStack, $switchBlock);
+
+          $curBlock = null;
+
+        } else if (preg_match(self::CASE_RE, $line, $matches)) {
+          $headBlock = end($blockStack);
+          if ($headBlock instanceof SwitchBlock) {
+            $headBlock->addCase($matches[1], $lineNum);
+            $curBlock = null;
+          } else {
+            $msg = "Case statements must appear within a switch block.";
+            throw new ParseException($msg, $templatePath, $lineNum, $line);
+          }
+
+        } else if (preg_match(self::DEFAULT_RE, $line)) {
+          $headBlock = end($blockStack);
+          if ($headBlock instanceof SwitchBlock) {
+            $headBlock->setDefault($lineNum);
+            $curBlock = null;
+          } else {
+            $msg = "Default statements must appear within a switch block.";
+            throw new ParseException($msg, $templatePath, $lineNum, $line);
+          }
+
+        } else if (preg_match(self::EACH_RE, $line, $matches)) {
+          $eachBlock = new EachBlock($matches[1], $lineNum);
+
+          $headBlock = end($blockStack);
+          $headBlock->addBlock($eachBlock);
+          array_push($blockStack, $eachBlock);
+
+          $curBlock = null;
+
+        } else if (preg_match(self::CLOSE_RE, $line)) {
+          array_pop($blockStack);
+          $curBlock = null;
+
+        } else {
+          if ($curBlock === null) {
+            $curBlock = new CodeBlock();
+
+            // Add the new code block to the head of block stack
+            $headBlock = end($blockStack);
+            $headBlock->addBlock($curBlock);
+          }
+
+          $codeLine = new CodeLine($line, $lineNum);
+
+          $indent = $this->_parseIndent($line) - count($blockStack) + 1;
+          $codeLine->setIndent($indent);
+
+          $curBlock->addLine($codeLine);
         }
-
-        $codeLine = new CodeLine($line, $lineNum);
-
-        $indent = $this->_parseIndent($line) - count($blockStack) + 1;
-        $codeLine->setIndent($indent);
-
-        $curBlock->addLine($codeLine);
       }
+    } catch (StructureException $e) {
+      throw new ParseException(
+        $e->getMessage(),
+        $templatePath,
+        $lineNum,
+        $line
+      );
     }
 
     return $template;
