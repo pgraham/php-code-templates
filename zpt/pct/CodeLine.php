@@ -22,107 +22,142 @@ namespace zpt\pct;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class CodeLine {
+class CodeLine
+{
 
-  // TODO Switch the order tof the glue and the variable so that it is possible
-  //      specify whitespace in the glue string without it being ambiguous with
-  //      whitespace at the end of the substitution expression
-  const JOIN_RE = '~/\*#\s*join(-php)?:([\w\-]+(?:\[[\w\-]+\])?):(.+?)\s*\*/~';
+    /**
+     * Regular expression for detecting a `join` substitution tag.
+     */
+    // TODO Switch the order of the glue and the variable so that it is
+    //      possible specify whitespace in the glue string without it being
+    //      ambiguous with whitespace at the end of the substitution expression
+    const JOIN_RE = '~/\*#\s*join(-php)?:([\w\-]+(?:\[[\w\-]+\])?):(.+?)\s*\*/~';
 
-  const JSON_RE = '~/\*#\s*json:([\w\-]+(?:\[[\w\-]+\])?)\s*\*/~';
+    /**
+     * Regular expression for detecting a `json` substitution tag.
+     */
+    const JSON_RE = '~/\*#\s*json:([\w\-]+(?:\[[\w\-]+\])?)\s*\*/~';
 
-  const PHP_RE = '~/\*#\s*php:([\w\-]+(?:\[[\w\-]+\])?)\s*\*/~';
+    /**
+     * Regular expression for detecting a `php` substitution tag.
+     */
+    const PHP_RE = '~/\*#\s*php:([\w\-]+(?:\[[\w\-]+\])?)\s*\*/~';
 
-  const TAG_RE = '~/\*#\s*([\w\-]+(?:\[[\w\-]+\])?)\s*\*/~';
+    /**
+     * Regular expression for detecting a substitution.
+     */
+    const TAG_RE = '~/\*#\s*([\w\-]+(?:\[[\w\-]+\])?)\s*\*/~';
 
-  private $_indent = 0;
-  private $_line;
-  private $_lineNum;
+    private $indent = 0;
+    private $line;
+    private $lineNum;
 
-  private $_tags;
+    private $tags;
 
-  public function __construct($line, $lineNum) {
-    $this->_line = trim($line);
-    $this->_lineNum = $lineNum;
-  }
-
-  public function forValues(TemplateValues $values) {
-    // Only parse tags once and only if the line is actually output
-    if ($this->_tags === null) {
-      $this->_parseTags();
+    /**
+     * Constructor.
+     *
+     * @param string $line The ensupsulated line of code.
+     * @param int $lineNum The line number on which this line of code appears
+     *        in it's source file.
+     */
+    public function __construct($line, $lineNum)
+    {
+        $this->line = trim($line);
+        $this->lineNum = $lineNum;
     }
 
-    $search = array();
-    $replace = array();
-    foreach ($this->_tags as $tag) {
-      $search[] = $tag->getKey();
-      $replace[] = $tag->getValue($values);
+    /**
+     * Substitute the given values into the template.
+     *
+     * @param TemplateValues $values
+     * @return string
+     */
+    public function forValues(TemplateValues $values)
+    {
+        // Only parse tags once and only if the line is actually output
+        if ($this->tags === null) {
+            $this->parseTags();
+        }
+
+        $search = array();
+        $replace = array();
+        foreach ($this->tags as $tag) {
+            $search[] = $tag->getKey();
+            $replace[] = $tag->getValue($values);
+        }
+
+        $r = $this->getIndent() . str_replace($search, $replace, $this->line);
+        return $r;
     }
 
-    $r = $this->_getIndent() . str_replace($search, $replace, $this->_line);
-    return $r;
-  }
-
-  public function getLineNum() {
-    return $this->_lineNum;
-  }
-
-  public function setIndent($indent) {
-    $this->_indent = $indent;
-  }
-
-  private function _getIndent() {
-    $indent = '';
-    for ($i = 0; $i < $this->_indent; $i++) {
-      $indent .= '  ';
-    }
-    return $indent;
-  }
-
-  private function _parseTags() {
-    $this->_tags = array();
-
-    // Parse joins
-    if (preg_match_all(self::JOIN_RE, $this->_line, $joins, PREG_SET_ORDER)) {
-      foreach ($joins as $join) {
-        $tag = new JoinSubstitution(
-          $join[0],
-          $join[2],
-          $join[3],
-          $join[1] === '-php',
-          $this->_lineNum
-        );
-        $this->_tags[] = $tag;
-      }
+    public function getLineNum()
+    {
+        return $this->lineNum;
     }
 
-    // Parse JSON outputs
-    if (preg_match_all(self::JSON_RE, $this->_line, $jsons, PREG_SET_ORDER)) {
-      foreach ($jsons as $json) {
-        $tag = new JsonSubstitution($json[0], $json[1], $this->_lineNum);
-        $this->_tags[] = $tag;
-      }
+    public function setIndent($indent)
+    {
+        $this->indent = $indent;
     }
 
-    // Parse PHP output
-    if (preg_match_all(self::PHP_RE, $this->_line, $phps, PREG_SET_ORDER)) {
-      foreach ($phps as $php) {
-        $tag = new PhpSubstitution(
-          $php[0],
-          $php[1],
-          $this->_lineNum,
-          $this->_indent
-        );
-        $this->_tags[] = $tag;
-      }
+    private function findTags($re)
+    {
+        $tags = array();
+        preg_match_all($re, $this->line, $tags, PREG_SET_ORDER);
+        return $tags;
     }
 
-    // Parse normal substitutions
-    if (preg_match_all(self::TAG_RE, $this->_line, $tags, PREG_SET_ORDER)) {
-      foreach ($tags as $tag) {
-        $tag = new TagSubstitution($tag[0], $tag[1], $this->_lineNum);
-        $this->_tags[] = $tag;
-      }
+    private function getIndent()
+    {
+        $indent = '';
+        for ($i = 0; $i < $this->indent; $i++) {
+            $indent .= '  ';
+        }
+        return $indent;
     }
-  }
+
+    private function parseTags()
+    {
+        $this->tags = array();
+
+        // Parse joins
+        $joins = $this->findTags(self::JOIN_RE);
+        foreach ($joins as $join) {
+            $tag = new JoinSubstitution(
+                $join[0],
+                $join[2],
+                $join[3],
+                $join[1] === '-php',
+                $this->lineNum
+            );
+            $this->tags[] = $tag;
+        }
+
+        // Parse JSON outputs
+        $jsons = $this->findTags(self::JSON_RE);
+        foreach ($jsons as $json) {
+            $tag = new JsonSubstitution($json[0], $json[1], $this->lineNum);
+            $this->tags[] = $tag;
+        }
+
+        // Parse PHP output
+        $phps = $this->findTags(self::PHP_RE);
+        foreach ($phps as $php) {
+            $tag = new PhpSubstitution(
+                $php[0],
+                $php[1],
+                $this->lineNum,
+                $this->indent
+            );
+            $this->tags[] = $tag;
+        }
+
+        // Parse normal substitutions
+        $tags = $this->findTags(self::TAG_RE);
+        foreach ($tags as $tag) {
+            $tag = new TagSubstitution($tag[0], $tag[1], $this->lineNum);
+            $this->tags[] = $tag;
+        }
+    }
 }
