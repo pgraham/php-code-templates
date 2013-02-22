@@ -22,17 +22,20 @@ use \Exception;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class SubstitutionException extends Exception {
+class SubstitutionException extends Exception
+{
 
-  private $_lineNum;
+    private $lineNum;
 
-  public function __construct($message, $lineNum) {
-    parent::__construct($message);
-    $this->_lineNum = $lineNum;
-  }
+    public function __construct($message, $lineNum)
+    {
+        parent::__construct($message);
+        $this->lineNum = $lineNum;
+    }
 
-  public function getLineNum() {
-    return $this->_lineNum;
-  }
+    public function getLineNum()
+    {
+        return $this->lineNum;
+    }
 
 }
