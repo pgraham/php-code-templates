@@ -19,45 +19,53 @@ namespace zpt\pct;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class JoinSubstitution extends Substitution {
+class JoinSubstitution extends Substitution
+{
 
-  private $_key;
-  private $_name;
-  private $_glue;
-  private $_isPhp;
+    private $key;
+    private $name;
+    private $glue;
+    private $isPhp;
 
-  public function __construct($key, $name, $glue, $isPhp, $lineNum) {
-    parent::__construct($lineNum);
+    public function __construct($key, $name, $glue, $isPhp, $lineNum)
+    {
+        parent::__construct($lineNum);
 
-    $this->_key = $key;
-    $this->_name = $name;
-    $this->_glue = $glue;
-    $this->_isPhp = $isPhp;
-  }
-
-  public function getKey() {
-    return $this->_key;
-  }
-
-  public function getValue(TemplateValues $values) {
-    $val = $values->getValue($this->_name);
-    if ($val === null) {
-      return '';
+        $this->key = $key;
+        $this->name = $name;
+        $this->glue = $glue;
+        $this->isPhp = $isPhp;
     }
 
-    if (!is_array($val)) {
-      throw new InvalidTypeException($this->_name, 'array', $val,
-        $this->lineNum);
+    public function getKey()
+    {
+        return $this->key;
     }
 
-    if ($this->_isPhp) {
-      $phpVals = array();
-      foreach ($val as $v) {
-        $phpVals[] = var_export($v, true);
-      }
-      $val = $phpVals;
-    }
+    public function getValue(TemplateValues $values)
+    {
+        $val = $values->getValue($this->name);
+        if ($val === null) {
+            return '';
+        }
 
-    return implode($this->_glue, $val);
-  }
+        if (!is_array($val)) {
+            throw new InvalidTypeException(
+                $this->name,
+                'array',
+                $val,
+                $this->lineNum
+            );
+        }
+
+        if ($this->isPhp) {
+            $phpVals = array();
+            foreach ($val as $v) {
+                $phpVals[] = var_export($v, true);
+            }
+            $val = $phpVals;
+        }
+
+        return implode($this->glue, $val);
+    }
 }
