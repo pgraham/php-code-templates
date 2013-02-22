@@ -21,63 +21,71 @@ namespace zpt\pct;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class PhpSubstitution extends Substitution {
+class PhpSubstitution extends Substitution
+{
 
-  private $_key;
-  private $_name;
-  private $_lineIndent;
+    private $key;
+    private $name;
+    private $lineIndent;
 
-  public function __construct($key, $name, $lineNum, $lineIndent) {
-    parent::__construct($lineNum);
+    public function __construct($key, $name, $lineNum, $lineIndent)
+    {
+        parent::__construct($lineNum);
 
-    $this->_key = $key;
-    $this->_name = $name;
-    $this->_lineIndent = $lineIndent;
-  }
-
-  public function getKey() {
-    return $this->_key;
-  }
-
-  public function getValue(TemplateValues $values) {
-    $php = $this->_varExport($values->getValue($this->_name));
-    if (preg_match('/^array\((.*)\)$/s', $php, $matches)) {
-      $indent = $this->_getIndent();
-
-      $arCtnt = $matches[1];
-      $arCtnt = str_replace("\n", "\n$indent", $arCtnt);
-
-      $php = "array ($arCtnt)";
+        $this->key = $key;
+        $this->name = $name;
+        $this->lineIndent = $lineIndent;
     }
-    return $php;
-  }
 
-  private function _getIndent() {
-    $indent = '';
-    for ($i = 0; $i < $this->_lineIndent; $i++) {
-      $indent .= '  ';
+    public function getKey()
+    {
+        return $this->key;
     }
-    return $indent;
-  }
 
-  /*
-   * Private function to create a PHP representation of a given variable avoid
-   * a known issue with var_export and instances of StdClass.
-   */
-  private function _varExport($val) {
-    if (is_array($val)) {
-      $vals = array();
-      foreach ($val as $k => $v) {
-        $vals[] = $this->_varExport($k, true) . ' => ' . $this->_varExport($v);
-      }
-      return 'array(' . implode(',', $vals) . ')';
+    public function getValue(TemplateValues $values)
+    {
+        $php = $this->varExport($values->getValue($this->name));
+        if (preg_match('/^array\((.*)\)$/s', $php, $matches)) {
+            $indent = $this->getIndent();
 
-    } else if (is_object($val) && get_class($val) === 'stdClass') {
-      return '(object) ' . $this->_varExport((array) $val);
+            $arCtnt = $matches[1];
+            $arCtnt = str_replace("\n", "\n$indent", $arCtnt);
 
-    } else {
-      return var_export($val, true);
+            $php = "array ($arCtnt)";
+        }
+        return $php;
     }
-  }
+
+    private function getIndent()
+    {
+        $indent = '';
+        for ($i = 0; $i < $this->lineIndent; $i++) {
+            $indent .= '  ';
+        }
+        return $indent;
+    }
+
+    /*
+     * Private function to create a PHP representation of a given variable avoid
+     * a known issue with var_export and instances of StdClass.
+     */
+    private function varExport($val)
+    {
+        if (is_array($val)) {
+            $vals = array();
+            foreach ($val as $k => $v) {
+                $vals[] = $this->varExport($k, true)
+                        . ' => '
+                        . $this->varExport($v);
+            }
+            return 'array(' . implode(',', $vals) . ')';
+
+        } elseif (is_object($val) && get_class($val) === 'stdClass') {
+            return '(object) ' . $this->varExport((array) $val);
+
+        } else {
+            return var_export($val, true);
+        }
+    }
 
 }
