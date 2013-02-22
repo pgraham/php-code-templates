@@ -27,6 +27,25 @@ require_once __DIR__ . '/test-common.php';
  */
 class SyntaxText extends TestCase {
 
+  private $caseWithoutSwitch = <<<'TMPL'
+<?php
+$msg = "This template contains a case statement without a switch statement";
+#| case 0
+TMPL;
+
+  protected $parser;
+
+  protected function setUp() {
+    $this->parser = new CodeTemplateParser();
+  }
+
+  /**
+   * @expectedException zpt\pct\ParseException
+   */
+  public function testCaseWithoutSwitch() {
+    $this->parser->parse($this->caseWithoutSwitch);
+  }
+
   public function testUndefinedSubstitutionValue() {
     // TODO
   }
