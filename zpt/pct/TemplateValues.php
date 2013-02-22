@@ -21,56 +21,63 @@ use \ArrayAccess;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class TemplateValues implements ArrayAccess {
+class TemplateValues implements ArrayAccess
+{
 
-  const AR_RE = '/([[:alnum:]_-]+)\[([[:alnum:]_-]+)\]/';
+    const AR_RE = '/([[:alnum:]_-]+)\[([[:alnum:]_-]+)\]/';
 
-  private $_values;
+    private $values;
 
-  /**
-   * Create a new TemplateValues object encapsulating the given values.
-   *
-   * @param array $values
-   */
-  public function __construct(array $values) {
-    $this->_values = $values;
-  }
-  
-  public function getValue($name) {
-    if (preg_match(self::AR_RE, $name, $matches)) {
-      $name = $matches[1];
-      $idx = $matches[2];
-
-      if (isset($this->_values[$name][$idx])) {
-        return $this->_values[$name][$idx];
-      }
-    } else {
-      if (isset($this->_values[$name])) {
-        return $this->_values[$name];
-      }
+    /**
+     * Create a new TemplateValues object encapsulating the given values.
+     *
+     * @param array $values
+     */
+    public function __construct(array $values)
+    {
+        $this->values = $values;
     }
-    return null;
-  }
+    
+    public function getValue($name)
+    {
+        if (preg_match(self::AR_RE, $name, $matches)) {
+            $name = $matches[1];
+            $idx = $matches[2];
 
-  public function offsetExists($offset) {
-    return isset($this->_values[$offset]);
-  }
-
-  public function offsetGet($offset) {
-    return isset($this->_values[$offset])
-      ? $this->_values[$offset]
-      : null;
-  }
-
-  public function offsetSet($offset, $value) {
-    if ($offset === null) {
-      $this->_values[] = $value;
-    } else {
-      $this->_values[$offset] = $value;
+            if (isset($this->values[$name][$idx])) {
+                return $this->values[$name][$idx];
+            }
+        } else {
+            if (isset($this->values[$name])) {
+                return $this->values[$name];
+            }
+        }
+        return null;
     }
-  }
 
-  public function offsetUnset($offset) {
-    unset($this->_values[$offset]);
-  }
+    public function offsetExists($offset)
+    {
+        return isset($this->values[$offset]);
+    }
+
+    public function offsetGet($offset)
+    {
+        return isset($this->values[$offset])
+            ? $this->values[$offset]
+            : null;
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        if ($offset === null) {
+            $this->values[] = $value;
+        } else {
+            $this->values[$offset] = $value;
+        }
+    }
+
+    public function offsetUnset($offset)
+    {
+        unset($this->values[$offset]);
+    }
 }
