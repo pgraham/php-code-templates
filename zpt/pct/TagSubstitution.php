@@ -19,23 +19,27 @@ namespace zpt\pct;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class TagSubstitution extends Substitution {
+class TagSubstitution extends Substitution
+{
 
-  private $_key;
-  private $_name;
+    private $key;
+    private $name;
 
-  public function __construct($key, $name, $lineNum) {
-    parent::__construct($lineNum);
+    public function __construct($key, $name, $lineNum)
+    {
+        parent::__construct($lineNum);
 
-    $this->_key = $key;
-    $this->_name = $name;
-  }
-  
-  public function getKey() {
-    return $this->_key;
-  }
+        $this->key = $key;
+        $this->name = $name;
+    }
+    
+    public function getKey()
+    {
+        return $this->key;
+    }
 
-  public function getValue(TemplateValues $values) {
-    return $values->getValue($this->_name);
-  }
+    public function getValue(TemplateValues $values)
+    {
+        return $values->getValue($this->name);
+    }
 }
