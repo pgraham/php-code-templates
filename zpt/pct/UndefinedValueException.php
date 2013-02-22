@@ -19,10 +19,14 @@ namespace zpt\pct;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class UndefinedValueException extends SubstitutionException {
+class UndefinedValueException extends SubstitutionException
+{
 
-  public function __construct($name, $lineNum) {
-    parent::__construct("Substitution value for $name is not defined",
-      $lineNum);
-  }
+    public function __construct($name, $lineNum)
+    {
+        parent::__construct(
+            "Substitution value for $name is not defined",
+            $lineNum
+        );
+    }
 }
