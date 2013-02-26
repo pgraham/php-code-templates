@@ -154,6 +154,11 @@ class CodeTemplateParser {
       );
     }
 
+    if (count($blockStack) > 1) {
+      $msg = "Unclosed template block";
+      throw new ParseException($msg, $templatePath, $lineNum, '');
+    }
+
     return $template;
   }
 

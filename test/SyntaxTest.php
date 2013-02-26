@@ -46,6 +46,15 @@ $msg = "This template contains an undefined substitution values";
 /*# undefined */
 TMPL;
 
+  private $unclosedBlock = <<<'TMPL'
+<?php
+$msg = "This tempate contains an unclosed block";
+#{ if var = val
+  #{ if foo = bar
+    $msg .= "foo is equal to bar";
+#}
+TMPL;
+
   /*
    * ===========================================================================
    * Tests
@@ -76,8 +85,11 @@ TMPL;
     }
   }
 
+  /**
+   * @expectedException zpt\pct\ParseException
+   */
   public function testUnclosedBlock() {
-    // TODO
+    $this->parser->parse($this->unclosedBlock);
   }
 
 }
