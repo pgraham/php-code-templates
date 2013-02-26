@@ -46,7 +46,7 @@ class JoinSubstitution extends Substitution
     {
         $val = $values->getValue($this->name);
         if ($val === null) {
-            return '';
+            throw new UndefinedValueException($this->name, $this->lineNum);
         }
 
         if (!is_array($val)) {

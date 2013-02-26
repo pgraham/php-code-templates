@@ -40,6 +40,10 @@ class TagSubstitution extends Substitution
 
     public function getValue(TemplateValues $values)
     {
-        return $values->getValue($this->name);
+        $val = $values->getValue($this->name);
+        if ($val === null) {
+            throw new UndefinedValueException($this->name, $this->lineNum);
+        }
+        return $val;
     }
 }

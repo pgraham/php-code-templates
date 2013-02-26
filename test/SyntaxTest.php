@@ -16,6 +16,7 @@ namespace zpt\pct\test;
 
 use \zpt\pct\CodeTemplateParser;
 use \zpt\pct\SyntaxExpression;
+use \zpt\pct\UndefinedValueException;
 use \PHPUnit_Framework_TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
@@ -27,11 +28,29 @@ require_once __DIR__ . '/test-common.php';
  */
 class SyntaxText extends TestCase {
 
+  /*
+   * ===========================================================================
+   * Erroneous template fragments.
+   * ===========================================================================
+   */
+
   private $caseWithoutSwitch = <<<'TMPL'
 <?php
 $msg = "This template contains a case statement without a switch statement";
 #| case 0
 TMPL;
+
+  private $undefinedSubstitutionValue = <<<'TMPL'
+<?php
+$msg = "This template contains an undefined substitution values";
+/*# undefined */
+TMPL;
+
+  /*
+   * ===========================================================================
+   * Tests
+   * ===========================================================================
+   */
 
   protected $parser;
 
@@ -47,11 +66,14 @@ TMPL;
   }
 
   public function testUndefinedSubstitutionValue() {
-    // TODO
-  }
+    $template = $this->parser->parse($this->undefinedSubstitutionValue);
 
-  public function testOutOfOrderBlockClosing() {
-    // TODO
+    try {
+      $resolved = $template->forValues(array());
+      $this->fail("UndefinedValueException expected");
+    } catch (UndefinedValueException $e) {
+      $this->assertEquals('undefined', $e->getVariableName());
+    }
   }
 
   public function testUnclosedBlock() {

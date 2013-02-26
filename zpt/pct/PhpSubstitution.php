@@ -44,7 +44,12 @@ class PhpSubstitution extends Substitution
 
     public function getValue(TemplateValues $values)
     {
-        $php = $this->varExport($values->getValue($this->name));
+        $val = $values->getValue($this->name);
+        if ($val === null) {
+            throw new UndefinedValueException($this->name, $this->lineNum);
+        }
+
+        $php = $this->varExport($val);
         if (preg_match('/^array\((.*)\)$/s', $php, $matches)) {
             $indent = $this->getIndent();
 

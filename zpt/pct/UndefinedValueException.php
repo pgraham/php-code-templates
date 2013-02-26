@@ -22,11 +22,19 @@ namespace zpt\pct;
 class UndefinedValueException extends SubstitutionException
 {
 
-    public function __construct($name, $lineNum)
+    protected $varName;
+
+    public function __construct($varName, $lineNum)
     {
         parent::__construct(
-            "Substitution value for $name is not defined",
+            "Substitution value for $varName is not defined",
             $lineNum
         );
+        $this->varName = $varName;
+    }
+
+    public function getVariableName()
+    {
+        return $this->varName;
     }
 }

@@ -17,7 +17,7 @@ namespace zpt\pct;
 use \Exception;
 
 /**
- * This class encapsulates and exception that occurs durring template value
+ * This class encapsulates and exception that occurs during template value
  * substitution.
  *
  * @author Philip Graham <philip@zeptech.ca>

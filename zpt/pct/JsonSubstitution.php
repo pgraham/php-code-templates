@@ -40,7 +40,11 @@ class JsonSubstitution extends Substitution
 
     public function getValue(TemplateValues $values)
     {
-        return json_encode($values->getValue($this->name));
+        $val = $values->getValue($this->name);
+        if ($val === null) {
+          throw new UndefinedValueException($this->name, $this->lineNum);
+        }
+        return json_encode($val);
     }
 
 }
