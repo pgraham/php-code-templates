@@ -12,11 +12,14 @@
       }
     ],
     "autoload": {
-      "psr-0": {
-        "zpt\\pct": ""
-      }
+        "psr-0": {
+            "zpt\\pct": ""
+        }
     },
     "require": {
-      "php": ">=5.3.0"
+        "php": ">=5.3.0"
+    },
+    "require-dev": {
+        "mockery/mockery": "dev-master"
     }
 }
