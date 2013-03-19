@@ -1,3 +1,7 @@
 phpdoc.ini
 commit.txt
 *.un~
+
+# Composer
+composer.lock
+vendor/
