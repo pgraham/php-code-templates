@@ -1,7 +1,7 @@
 # PHP Code Templates
 
 PHP Code templates (pct) is a PHP library that parses and performs value
-substitution for code templates.
+substitution for PHP class templates.
 
 ## Creating Templates
 
@@ -14,13 +14,13 @@ and repeating sections.
 ### Substitution Tags
 
 To specify a spot in a template where a value is to be substituted, add a tag
-with the following syntax: `${name[idx]}`.
+with the following syntax: `/*# name[idx] */`.
 
 The index portion is optional. Indexes are described below in the section on
 Value Substitution.
 
 Array substitution values can be substituted inline using a join substitution
-tag: `${join:<var>:<glue>}`.
+tag: `/*# join:<var>:<glue> */`.
 
 ### Conditional Sections
 
@@ -29,13 +29,13 @@ durring value substitution if the set of substitution values matches the
 conditional expression. Conditional sections have to following syntax:
 
 ```
-${if:<var> <op> <value>}
+#{ if <var> <op> <value>
   <section>
-${elseif:<var> <op> <value>}
+#{ elseif <var> <op> <value>
   <section>
-${else}
+#{ else
   <section>
-${fi}
+#}
 ```
 
 In the condition, `<var>` has the same syntax as a substitution tag and must be
@@ -43,16 +43,16 @@ the name of a provided substitution value, `<op>` is one of `=, >, >=, <, <=,
 !=, ISSET, ISNOTSET` and `<value>` is any value. For boolean substitution values
 `<op>` and `<value>` can be ommitted.
 
-`${elseif: ...}` and `${else}` sections are optional.
+`#{ elseif ...` and `#{ else` sections are optional.
 
 ### Repeating Sections
 
 Repeating sections can be specified as follows:
 
 ```
-${each:<var> as <name>}
+#{ each <var> as <name>
   <section>
-${done}
+#}
 ```
 
 `<var>` must refer to an array substitution value.  Within the repeated section,
@@ -66,97 +66,90 @@ model classes in the [Clarinet ORM Project](https://github.com/pgraham/Clarinet)
 <https://github.com/pgraham/Clarinet/blob/master/src/persister/persister.php>
 
 ```php
-<?php
-/**
- * Generated persister class.
- */
-class ${class} {
-
-  private $_cache = array();
-
-  private $_pdo;
-
-  private $_create;
-
-  private $_update;
-
-  private $_delete;
-
-  public function __construct() {
-    $this->_pdo = PdoWrapper::get();
-
-    $this->_create = $this->_pdo->prepare("INSERT INTO ${table} (${join:colNames:,}) VALUES (${join:colParams:,})");
+class /*# actor */ {
 
     // ...
-  }
 
-  public function create(\${model} $model) {
-    if ($model->get${idProperty}() !== null) {
-      return $model->get${idProperty}();
-    }
+    public function create(\/*# class */ $model) {
 
-    try {
-      $startedTransaction = $this->_pdo->begin();
-
-      $params = array(); // Create statement parameter values
-
-      ${each:properties as prop}
-        ${if:prop[type] = boolean}
-          $params[':${prop[col]}'] = $model->get${prop[name]}() ? 1 : 0;
-        ${else}
-          $params[':${prop[col]}'] = $model->get${prop[name]}();
-        ${fi}
-      ${done}
-
-      ${each:relationships as rel}
-        ${if:rel[type] = many-to-one}
-          // Ensure that if the 'one' side of the relationship is not null that
-          // it has id
-          
-          // ...
-        ${fi}
-      ${done}
-
-      $this->_create->execute($params);
-      $id = $this->_pdo->lastInsertId();
-      $model->set${idProperty}($id);
-      $this->_cache[$id] = $model;
-
-      ${each:relationships as rel}
-        ${if:rel[type] = many-to-many}
-          // Update link table to match list of related entities in the model
-
-          // ...
-
-        ${elseif:rel[type] = one-to-many}
-          // Update many side of the relationship to match list of related
-          // entities in the model
-
-          // ...
-
-        ${fi}
-      ${done}
-
-      if ($startedTransaction) {
-        $this->_pdo->commit();
+      if (!$this->validator->validate($model, $e)) {
+        throw $e;
       }
-    } catch (PDOException $e) {
-      $this->_pdo->rollback();
-      $model->set${idProperty}(null);
+
+      if ($model->get/*# id_property */() !== null) {
+        return $model->get/*# id_property */();
+      }
+
+      #{ if beforeCreate
+        $model->beforeCreate();
+      #}
+
+      try {
+        $startTransaction = $this->_pdo->beginTransaction();
+
+        $model->set/*# id_property */(self::CREATE_MARKER);
+
+        $params = Array();
+        #{ each properties as prop
+          #{ if prop[type] = boolean
+            $params['/*# prop[col] */'] = $model->get/*# prop[name] */() ? 1 : 0;
+          #{ else
+            $params['/*# prop[col] */'] = $model->get/*# prop[name] */();
+          #}
+        #}
+
+        #{ each relationships as rel
+          #{ if rel[type] = many-to-one
+            // Populate /*# rel[rhs] */ parameter --------------------------------
+            // ...
+            // -------------------------------------------------------------------
+          #}
+        #}
+
+        $this->_create->execute($params);
+
+        $id = $this->transformer->idFromDb($this->_pdo->lastInsertId());
+        $model->set/*# id_property */($id);
+        $this->_cache[$id] = $model;
+
+        #{ each collections as col
+          $this->insertCollection_/*# col[property] */(
+            $id,
+            $model->get/*# col[property] */()
+          );
+        #}
+
+        #{ each relationships as rel
+          $related = $model->get/*# rel[lhsProperty] */();
+          #{ if rel[type] = many-to-many
+            // ...
+
+          #{ elseif rel[type] = one-to-many
+            // ...
+          #}
+        #}
+
+        if ($startTransaction) {
+          $this->_pdo->commit();
+        }
+
+        #{ if onCreate
+          $model->onCreate();
+        #} 
+
+        return $id;
+      } catch (PDOException $e) {
+        $this->_pdo->rollback();
+        $model->set/*# id_property */(null);
+
+        $e = new PdoExceptionWrapper($e, '/*# class */');
+        $e->setSql($sql, $params);
+        throw $e;
+      }
     }
-  }
 
-  public function delete(\${model} $model) {
     // ...
-  }
 
-  public function retrieve(Criteria $c) {
-    // ...
-  }
-
-  public function update(\${model} $model) {
-    // ...
-  }
 }
 ```
 
