@@ -23,6 +23,7 @@ class ActorFactoryFactory
 {
 
     private $factories = array();
+    private $injectors = array();
     private $namingStrategy;
 
     public function getFactory($baseNs)
@@ -31,9 +32,29 @@ class ActorFactoryFactory
             $factory = new ActorFactory($baseNs);
             $factory->setNamingStrategy($this->namingStrategy);
 
+            if (isset($this->injectors[$baseNs])) {
+                foreach ($this->injectors[$baseNs] as $injector) {
+                    $factory->registerInjector($injector);
+                }
+            }
+
             $this->factories[$baseNs] = $factory;
         }
         return $this->factories[$baseNs];
+    }
+
+    public function registerInjector($baseNs, ActorInjector $injector)
+    {
+        if (!isset($this->injectors[$baseNs])) {
+            $this->injectors[$baseNs] = array();
+        }
+
+        $this->injectors[$baseNs][] = $injector;
+
+        if (isset($this->factories[$baseNs])) {
+            $factory = $this->factories[$baseNs];
+            $factory->registerInjector($injector);
+        }
     }
 
     public function setNamingStrategy(

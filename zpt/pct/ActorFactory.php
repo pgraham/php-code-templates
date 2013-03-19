@@ -34,6 +34,9 @@ class ActorFactory
     /* Naming strategy for instantiating actors. */
     private $namingStrategy;
 
+    /* Injectors for new instances */
+    private $injectors = array();
+
     /**
      * Create a new factory for aspects that live in the given namespace.
      *
@@ -53,18 +56,28 @@ class ActorFactory
     public function get($targetClass)
     {
         if (is_object($targetClass)) {
-          $targetClass = get_class($targetClass);
+            $targetClass = get_class($targetClass);
         }
 
         if (!$this->useCache) {
-          return $this->createActor($targetClass);
+            return $this->createActor($targetClass);
         }
 
         if (!array_key_exists($targetClass, $this->actors)) {
-          $actor = $this->createActor($targetClass);
-          $this->actors[$targetClass] = $actor;
+            $actor = $this->createActor($targetClass);
+            $this->actors[$targetClass] = $actor;
         }
         return $this->actors[$targetClass];
+    }
+
+    /**
+     * Register an injector.
+     *
+     * @param Injector $injector
+     */
+    public function registerInjector(ActorInjector $injector)
+    {
+        $this->injectors[] = $injector;
     }
 
     /*
@@ -106,6 +119,12 @@ class ActorFactory
     {
         $actorName = $this->namingStrategy->getActorName($targetClass);
         $fq = $this->baseNamespace . "\\$actorName";
-        return new $fq();
+        $actor = new $fq();
+
+        foreach ($this->injectors as $injector) {
+            $injector->inject($actor);
+        }
+
+        return $actor;
     }
 }
