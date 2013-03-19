@@ -15,7 +15,4 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
 
-require 'SplClassLoader.php';
-
-$loader = new SplClassLoader('zpt\pct', __DIR__ . '/..');
-$loader->register();
+require __DIR__ . '/../vendor/autoload.php';
