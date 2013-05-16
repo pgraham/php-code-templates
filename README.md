@@ -155,5 +155,6 @@ class /*# actor */ {
 
 ## Value Substitution
 
-Value substitution is the process of replacing all template tags with values so
+Value substitution, referred to here after as template resolution (or more
+simply resolution) is the process of replacing all template tags with values so
 that a code template becomes an actual useful piece of code.
