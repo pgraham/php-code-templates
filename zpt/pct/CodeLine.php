@@ -27,7 +27,7 @@ class CodeLine
 
     const TAG_OPEN = '/\*#\s*';
 
-    const TAG_CLOSE = '\s*\*/';
+    const TAG_CLOSE = '\s*#?\*/';
 
     /**
      * Regular expression for detecting a `join` substitution tag.

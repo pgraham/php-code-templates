@@ -108,4 +108,15 @@ class CodeLineTest extends TestCase {
     }
   }
 
+  public function testMirrorTagSyntax() {
+    $codeLine = new CodeLine('/*# valname #*/', 1);
+
+    $expected = 'a_value';
+    $actual = $codeLine->forValues(new TemplateValues(array(
+      'valname' => 'a_value'
+    )));
+
+    $this->assertEquals($expected, $actual);
+  }
+
 }
