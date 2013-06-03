@@ -40,10 +40,18 @@ class CodeTemplateParser {
   /**
    * Parse the given code and populate the given CodeTemplate.
    *
-   * @param string $code The code to parse.
+   * @param string $code Either the path to the file containing the code to 
+   *   parse or the code to parse.
    * @return CodeTemplate
    */
-  public function parse($code, $templatePath = '-- CODE --') {
+  public function parse($code) {
+    if (file_exists($code)) {
+      $templatePath = $code;
+      $code = file_get_contents($templatePath);
+    } else {
+      $templatePath = '-- CODE --';
+    }
+
     $template = new CodeTemplate();
 
     $lines = explode("\n", $code);
