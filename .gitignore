@@ -1,7 +1,10 @@
 test/target
 phpdoc.ini
 commit.txt
-*.un~
+
+# Vim
+.*.un~
+.*.swp
 
 # Composer
 composer.lock
