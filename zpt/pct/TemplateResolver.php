@@ -38,7 +38,16 @@ class TemplateResolver {
 		}
 
 		$template = $this->templateParser->parse($templatePath);
-		$resolved = $template->forValues($values);
+		try {
+			$resolved = $template->forValues($values);
+		} catch (SubstitutionException $e) {
+			throw new ResolutionException(
+				$templatePath,
+				$e->getLineNum(),
+				$values,
+				$e
+			);
+		}
 
 		$outDir = dirname($resolvedPath);
 		if (!file_exists($outDir)) {
