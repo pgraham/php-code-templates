@@ -32,7 +32,7 @@ class TagSubstitution extends Substitution
         $this->key = $key;
         $this->name = $name;
     }
-    
+
     public function getKey()
     {
         return $this->key;

@@ -17,7 +17,7 @@ namespace zpt\pct;
 use \SplFileObject;
 
 /**
- * This class will resolve a template at a specified path location with given 
+ * This class will resolve a template at a specified path location with given
  * values and output the result at the specified path location.
  *
  * @author Philip Graham <philip@zeptech.ca>
