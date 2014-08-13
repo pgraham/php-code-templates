@@ -52,10 +52,16 @@ class CodeLine
      */
     const TAG_RE = '([\w\-]+(?:\[[\w\-]+\])?)';
 
+    /**
+     * Regular expression for detecting a `xml` substitution tag.
+     */
+    const XML_RE = 'xml:([\w\-]+(?:\[[\w\-]+\])?)';
+
     private static $JOIN_RE = null;
     private static $JSON_RE = null;
     private static $PHP_RE = null;
     private static $TAG_RE = null;
+    private static $XML_RE = null;
 
     /* Build full regexs from regex fragment constants */
     private static function initRegexs() {
@@ -72,6 +78,7 @@ class CodeLine
         self::$JSON_RE = $buildRe(self::JSON_RE);
         self::$PHP_RE = $buildRe(self::PHP_RE);
         self::$TAG_RE = $buildRe(self::TAG_RE);
+        self::$XML_RE = $buildRe(self::XML_RE);
     }
 
     private $indent = 0;
@@ -166,6 +173,13 @@ class CodeLine
         $jsons = $this->findTags(self::$JSON_RE);
         foreach ($jsons as $json) {
             $tag = new JsonSubstitution($json[0], $json[1], $this->lineNum);
+            $this->tags[] = $tag;
+        }
+
+        // Parse XML encoded outputs
+        $xmls = $this->findTags(self::$XML_RE);
+        foreach ($xmls as $xml) {
+            $tag = new XmlSubstitution($xml[0], $xml[1], $this->lineNum);
             $this->tags[] = $tag;
         }
 

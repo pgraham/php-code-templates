@@ -41,7 +41,7 @@ class CodeLineTest extends TestCase {
       $codeLine = new CodeLine($test[0], 1);
       $expected = $test[1];
       $actual = $codeLine->forValues(new TemplateValues(array('sub' => 'val')));
-      
+
       $this->assertEquals($expected, $actual);
     }
   }
@@ -80,6 +80,17 @@ class CodeLineTest extends TestCase {
         'key1' => 'val1',
         'key2' => array( 1, 2, 3 )
       )
+    )));
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testXmlSubstitution() {
+    $codeLine = new CodeLine('/*# xml:data #*/', 1);
+
+    $expected = 'I like to eat &lt;apples&gt; &amp; &quot;bananas&quot;';
+    $actual = $codeLine->forValues(new TemplateValues(array(
+      'data' => 'I like to eat <apples> & "bananas"'
     )));
 
     $this->assertEquals($expected, $actual);
