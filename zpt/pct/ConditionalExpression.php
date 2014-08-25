@@ -98,7 +98,7 @@ class ConditionalExpression
 	 * ===========================================================================
 	 */
 
-	private $_conditions;
+	private $conditions;
 
 	/**
 	 * Create a new ConditionalExpression.
@@ -134,16 +134,16 @@ class ConditionalExpression
 
 			$curGroup[] = $cond;
 			if ($logic === 'and') {
-				$this->_conditions[] = $curGroup;
+				$this->conditions[] = $curGroup;
 				$curGroup = array();
 			}
 		}
-		$this->_conditions[] = $curGroup;
+		$this->conditions[] = $curGroup;
 	}
 
 	public function __toString() {
 		$ands = array();
-		foreach ($this->_conditions as $conditionGroup) {
+		foreach ($this->conditions as $conditionGroup) {
 			$ors = array();
 			foreach ($conditionGroup as $condition) {
 				$ors[] = "$condition[name] $condition[op] $condition[val]";
@@ -170,7 +170,7 @@ class ConditionalExpression
 				"TemplateValues instance.");
 		}
 
-		foreach ($this->_conditions as $group) {
+		foreach ($this->conditions as $group) {
 			$groupSatisfied = false;
 			foreach ($group as $cond) {
 				$val = $values->getValue($cond['name']);
