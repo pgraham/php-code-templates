@@ -60,12 +60,11 @@ class EachBlock extends CompositeBlock {
   public function forValues($values) {
     $itr = $values->getValue($this->_name);
     if ($itr === null) {
-      throw new UndefinedValueException($this->_name, $this->lineNum);
+      throw new UndefinedValueException($this->_name);
     }
 
     if (!is_array($itr)) {
-      throw new InvalidTypeException($this->_name, 'array', $itr,
-        $this->lineNum);
+      throw new UnexpectedSubstitutionValueTypeException('array', $itr);
     }
 
     // If the given value is an empty array return null to avoid extra white
