@@ -14,11 +14,32 @@ namespace zpt\pct;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-abstract class Substitution {
+class Substitution {
 
-	protected $lineNum;
+	private $valueName;
+	private $indexes;
+	private $filters;
 
-	protected function __construct($lineNum) {
-		$this->lineNum = $lineNum;
+	public function __construct(
+		$valueName,
+		$indexes = [],
+		$filters = []
+	) {
+		$this->valueName = $valueName;
+		$this->indexes = $indexes;
+		$this->filters = $filters;
+	}
+
+	public function getValue(TemplateValues $values) {
+		$value = $values->getValue($this->valueName, $this->indexes);
+		if ($value === null) {
+			throw new UndefinedValueException($this->valueName);
+		}
+
+		foreach ($this->filters as list($fn, $params)) {
+			$value = $fn($value, $params);
+		}
+
+		return $value;
 	}
 }

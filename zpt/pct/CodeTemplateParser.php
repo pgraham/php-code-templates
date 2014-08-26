@@ -23,8 +23,8 @@ namespace zpt\pct;
 class CodeTemplateParser {
 
   const IF_RE      = '/^\s*#\{\s*if\s+(.+)$/';
-  const ELSEIF_RE  = '/^\s*#\{\s*elseif\s+(.+)$/';
-  const ELSE_RE    = '/^\s*#\{\s*else\s*$/';
+  const ELSEIF_RE  = '/^\s*#\}?\{\s*elseif\s+(.+)$/';
+  const ELSE_RE    = '/^\s*#\}?\{\s*else\s*$/';
 
   const SWITCH_RE  = '/^\s*#\{\s*switch\s+(.+)$/';
   const CASE_RE    = '/^\s*#\|\s*case\s+(.+)$/';
@@ -40,7 +40,7 @@ class CodeTemplateParser {
   /**
    * Parse the given code and populate the given CodeTemplate.
    *
-   * @param string $code Either the path to the file containing the code to 
+   * @param string $code Either the path to the file containing the code to
    *   parse or the code to parse.
    * @return CodeTemplate
    */

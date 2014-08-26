@@ -14,36 +14,110 @@ and repeating sections.
 ### Substitution Tags
 
 To specify a spot in a template where a value is to be substituted, add a tag
-with the following syntax: `/*# name[idx] */`.
+with the following grammar:
 
-The index portion is optional. Indexes are described below in the section on
-Value Substitution.
+    SUBSTITUTION_TAG        <- '/*#' SUBSTITUTION_EXPRESSION '#*/'
+    SUBSTITUTION_EXPRESSION <- (FILTER_EXPRESSION('-' FILTER_EXPRESSION)*:)?VARIABLE_NAME
+    FILTER_EXPRESSION       <- [a-zA-Z]+ ('(' FILTER_PARAMETER (',' FILTER_PARAMETER)* ')')?
+    FILTER_PARAMETER        <- .+
+    VARIABLE_NAME           <- [a-zA-Z]+ ('[' VARIABLE_INDEX ']')*
+    VARIABLE_INDEX          <- [a-zA-Z]+
 
-Array substitution values can be substituted inline using a join substitution
-tag: `/*# join:<var>:<glue> */`.
+Examples:
+
+ -  `/*# var #*/`  -- Output the substitution value `var`
+ -  `/*# php:var #*/` -- Output the substitution value `var` using the php
+    filter
+ -  `/*# join(,):var #*/` -- Output the substitution value `var` using the join
+    filter with the ',' character as glue
+ -  `/*# each(php)-join(,):var #*/` -- Pass each value of `var` through the php
+    filter and then join the resulting values using a comma
+ -  `/*# var[idx] #*/` -- Output the `idx` value of the array value `var`
+ -  `/*# var[idx][subidx] #*/` -- Nested indexes are supported too
+
+#### Filters
+
+There are a number of predefined filters for outputting substitution values.
+
+ -  _each(filter)_ Apply a filter to each value of an array substitution value.
+ -  _json_ Output the substitution value encoded as JSON.
+ -  _join(glue)_ Join all of the values of an array using `glue` and output the
+    result.
+ -  _php_ Output the substitution value using
+    (http://php.net/manual/en/function.var-export.php)[var_export].
+ -  _xml_ Output the substitution with encoded XML entities. Note that this will
+    not serialize an array or object as XML.
+
+Filters can be layered by joining multiple filter expressions with the '-'
+character. Filters defined in this manner are evaluated left to right with each
+filter receiving the result of the previous filter as input.
 
 ### Conditional Sections
 
 Templates support conditional sections. These sections will only be output
 durring value substitution if the set of substitution values matches the
-conditional expression. Conditional sections have to following syntax:
+conditional expression. Conditional sections have to following grammar:
 
-```
-#{ if <var> <op> <value>
-  <section>
-#{ elseif <var> <op> <value>
-  <section>
-#{ else
-  <section>
-#}
-```
+    IF_EXPRESSION   <- '#{ if' CONDITIONAL '\n' BLOCK
+                       (('#{' / '#}{') ' elseif' CONDITIONAL '\n' BLOCK)*
+                       (('#{' / '#}{') ' else' '\n' BLOCK)?
+                       '#}'
+    CONDITIONAL     <- COMPARISON (('and' / 'or') COMPARISON)*
+    COMPARISON      <- OPERAND (UNARY_OPERATOR / BINARY_OPERATOR OPERAND)?
+    OPERAND         <- VARIABLE_NAME / NUMBER / STRING
+    VARIABLE_NAME   <- [a-zA-Z]+ ('[' VARIABLE_INDEX ']')*
+    VARIABLE_INDEX  <- [a-zA-Z]+
+    NUMBER          <- Any numeric string*
+    STRING          <- ('\'' / '"') .* ('\'' / '"')
+    BINARY_OPERATOR <- '=' / '!=' / '<' / '>' / '<=' / '>=' /
+    UNARY_OPERATOR  <- 'ISSET' / 'ISNOTSET'
+    BLOCK           <- PHP code with addition template syntax
 
-In the condition, `<var>` has the same syntax as a substitution tag and must be
-the name of a provided substitution value, `<op>` is one of `=, >, >=, <, <=,
-!=, ISSET, ISNOTSET` and `<value>` is any value. For boolean substitution values
-`<op>` and `<value>` can be ommitted.
+When a comparision is defined as a single `OPERAND` without an operator, the
+boolean value of the resolved operand will be used to resolve the
+`IF_EXPRESSION`.
 
-`#{ elseif ...` and `#{ else` sections are optional.
+* as defined by (http://php.net/manual/en/function.is-numeric.php)[is_numeric]
+
+Example:
+
+    #{ if var[type] = 'list'
+        // Handle a list
+    #}{ elseif var[type] = 'map'
+       // Handle a map
+    #}{ else
+       // Handle non-collection type
+    #}
+
+### Switch Block
+
+In addition to if style conditional sections, a switch section can be used to
+substitute different content for different values of the same substitution
+variable.
+
+Example:
+
+    #{ switch var
+    #| case 0
+        // Handle case when var = 0
+    #| case > 0
+        // Handle case when var > 0
+    #| case < 0
+        // Handle case when var < 0
+    #}
+
+The example for the if block could be rewritten as:
+
+    #{ switch
+    #| case 'list'
+        // Handle a list
+    #| case 'map'
+        // Handle a map
+    #| default
+        / Handle non-collection type
+    #}
+
+Switch cases do __NOT__ fall through.
 
 ### Repeating Sections
 
@@ -61,9 +135,9 @@ using the substitution value with name `<name>`
 
 ### Example
 
-This example is portion of the template used to create a persister object for
+This example is a portion of the template used to create a persister object for
 model classes in the [Clarinet ORM Project](https://github.com/pgraham/Clarinet). The complete template can be found at
-<https://github.com/pgraham/Clarinet/blob/master/src/persister/persister.php>
+<https://github.com/pgraham/Clarinet/blob/master/src/persister/persister.tmlp.php>
 
 ```php
 class /*# actor */ {
@@ -158,3 +232,6 @@ class /*# actor */ {
 Value substitution, referred to here after as template resolution (or more
 simply resolution) is the process of replacing all template tags with values so
 that a code template becomes an actual useful piece of code.
+
+Templates can be resolved using a `zpt\pct\TemplateResolver` instance and
+invoking it's `resolve($templatePath, $outputpath, $values);` method.

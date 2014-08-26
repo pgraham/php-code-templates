@@ -27,9 +27,11 @@ class SubstitutionException extends Exception
 
     private $lineNum;
 
-    public function __construct($message, $lineNum)
+    public function __construct($lineNum, $previous = null)
     {
-        parent::__construct($message);
+        $msg = "Error occured processing line $lineNum";
+        parent::__construct($msg, 0, $previous);
+
         $this->lineNum = $lineNum;
     }
 

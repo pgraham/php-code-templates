@@ -123,7 +123,7 @@ TMPL;
 
     $expected = <<<EXPT
 foreach (\$i = 0; \$i < 10; \$i++) {
-  \$var = array (0 => array('id' => 'id1'),1 => array('id' => 'id2'));
+  \$var = array(0 => array('id' => 'id1'),1 => array('id' => 'id2'));
 }
 EXPT;
 

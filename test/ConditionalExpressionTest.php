@@ -58,7 +58,7 @@ class ConditionalExpressionTest extends TestCase {
   }
 
   public function testOperator() {
-    $if = new ConditionalExpression('value = value');
+    $if = new ConditionalExpression('value = "value"');
 
     $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
       'value' => 'value'
@@ -76,7 +76,7 @@ class ConditionalExpressionTest extends TestCase {
   }
 
   public function testCompositeExpression() {
-    $if = new ConditionalExpression('value = value or value = bleh');
+    $if = new ConditionalExpression('value = "value" or value = "bleh"');
 
     $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
       'value' => 'value'
@@ -87,7 +87,7 @@ class ConditionalExpressionTest extends TestCase {
   }
 
   public function testIndexedCompositeExpression() {
-    $if = new ConditionalExpression('value[idx] = value or value[idx] = bleh');
+    $if = new ConditionalExpression('value[idx] = "value" or value[idx] = "bleh"');
 
     $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
       'value' => array('idx' => 'value')
@@ -133,7 +133,7 @@ class ConditionalExpressionTest extends TestCase {
 
   public function testAndOperator() {
     $if = new ConditionalExpression(
-      'value[param1] = value1 and value[param2] = value2');
+      'value[param1] = "value1" and value[param2] = "value2"');
 
     $this->assertTrue($if->isSatisfiedBy(new TemplateValues(array(
       'value' => array(
@@ -144,9 +144,9 @@ class ConditionalExpressionTest extends TestCase {
   }
 
   public function testFullCnf() {
-    $exp = 'set1[k1] = v1 or set2[k1] = v1 or set3[k1] = v1 and
-            set1[k2] = v2 or set2[k2] = v2 or set3[k2] = v2 and
-            set1[k3] = v3 or set2[k3] = v3 or set3[k3] = v3';
+    $exp = 'set1[k1] = "v1" or set2[k1] = "v1" or set3[k1] = "v1" and
+            set1[k2] = "v2" or set2[k2] = "v2" or set3[k2] = "v2" and
+            set1[k3] = "v3" or set2[k3] = "v3" or set3[k3] = "v3"';
 
     $if = new ConditionalExpression($exp);
 

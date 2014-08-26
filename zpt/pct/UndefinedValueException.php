@@ -14,22 +14,21 @@
  */
 namespace zpt\pct;
 
+use UnexpectedValueException;
+
 /**
  * Exception for cases where a substitution value is undefined.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class UndefinedValueException extends SubstitutionException
+class UndefinedValueException extends UnexpectedValueException
 {
 
-    protected $varName;
+    private $varName;
 
-    public function __construct($varName, $lineNum)
+    public function __construct($varName)
     {
-        parent::__construct(
-            "Substitution value for $varName is not defined",
-            $lineNum
-        );
+        parent::__construct("Substitution value for $varName is not defined");
         $this->varName = $varName;
     }
 

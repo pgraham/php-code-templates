@@ -73,11 +73,11 @@ class IfSubstitutionTest extends TestCase {
     $parser = new CodeTemplateParser();
 
     $ifCtnt = 
-      "#{ if val = val1\n" .
+      "#{ if val = 'val1'\n" .
       "I am val1\n" .
-      "#{ elseif val = val2\n" .
+      "#{ elseif val = 'val2'\n" .
       "I am val2\n" .
-      "#{ elseif val = val3\n" .
+      "#{ elseif val = 'val3'\n" .
       "I am val3\n" .
       "#{ else\n" .
       "I am another value\n" .

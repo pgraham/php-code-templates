@@ -12,13 +12,9 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace zpt\pct\test;
+namespace zpt\pct;
 
-use \zpt\pct\CodeLine;
-use \zpt\pct\SubstitutionException;
-use \zpt\pct\TemplateValues;
-
-use \PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit_Framework_TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
 
@@ -97,7 +93,7 @@ class CodeLineTest extends TestCase {
   }
 
   public function testJoinSubstitution() {
-    $codeLine = new CodeLine('/*# join:join:, */', 1);
+    $codeLine = new CodeLine('/*# join(,):join */', 1);
 
     $expected = 'val1,val2,val3';
     $actual = $codeLine->forValues(new TemplateValues(array(
@@ -108,14 +104,14 @@ class CodeLineTest extends TestCase {
   }
 
   public function testJoinNotArray() {
-    $codeLine = new CodeLine('/*# join:join:, */', 1);
+    $codeLine = new CodeLine('/*# join(,):join */', 1);
 
     try {
       $codeLine->forValues(new TemplateValues(array(
         'join' => 'not an array'
       )));
       $this->fail("Expected an exception");
-    } catch (SubstitutionException $e) {
+    } catch (UnexpectedSubstitutionValueTypeException $e) {
     }
   }
 
@@ -128,6 +124,29 @@ class CodeLineTest extends TestCase {
     )));
 
     $this->assertEquals($expected, $actual);
+  }
+
+  public function testSimpleArrayTag() {
+    $codeLine = new CodeLine('/*# ar[val] #*/', 1);
+
+    $expected = 'a_value';
+    $actual = $codeLine->forValues(new TemplateValues([
+      'ar' => [ 'val' => 'a_value' ]
+    ]));
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testNestedArrayTag() {
+    $codeLine = new CodeLine('/*# ar[nested][val] #*/', 1);
+
+    $expected = 'a_value';
+    $actual = $codeLine->forValues(new TemplateValues([
+      'ar' => [ 'nested' => [ 'val' => 'a_value' ] ]
+    ]));
+
+    $this->assertEquals($expected, $actual);
+
   }
 
 }

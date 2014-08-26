@@ -12,11 +12,8 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace zpt\pct\test;
+namespace zpt\pct;
 
-use \zpt\pct\CodeTemplateParser;
-use \zpt\pct\SyntaxExpression;
-use \zpt\pct\UndefinedValueException;
 use \PHPUnit_Framework_TestCase as TestCase;
 
 require_once __DIR__ . '/test-common.php';
@@ -80,8 +77,10 @@ TMPL;
     try {
       $resolved = $template->forValues(array());
       $this->fail("UndefinedValueException expected");
-    } catch (UndefinedValueException $e) {
-      $this->assertEquals('undefined', $e->getVariableName());
+    } catch (SubstitutionException $e) {
+      $previous = $e->getPrevious();
+      $this->assertInstanceOf('zpt\pct\UndefinedValueException', $previous);
+      $this->assertEquals('undefined', $previous->getVariableName());
     }
   }
 

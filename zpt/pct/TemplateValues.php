@@ -19,8 +19,6 @@ use ArrayAccess;
 class TemplateValues implements ArrayAccess
 {
 
-	const AR_RE = '/([[:alnum:]_-]+)\[([[:alnum:]_-]+)\]/';
-
 	private $values;
 
 	/**
@@ -32,20 +30,20 @@ class TemplateValues implements ArrayAccess
 		$this->values = $values;
 	}
 
-	public function getValue($name) {
-		if (preg_match(self::AR_RE, $name, $matches)) {
-			$name = $matches[1];
-			$idx = $matches[2];
+	public function getValue($name, array $indexes = []) {
+		if (!isset($this->values[$name])) {
+			return null;
+		}
 
-			if (isset($this->values[$name][$idx])) {
-				return $this->values[$name][$idx];
-			}
-		} else {
-			if (isset($this->values[$name])) {
-				return $this->values[$name];
+		$value = $this->values[$name];
+		foreach ($indexes as $idx) {
+			if (is_array($value) && isset($value[$idx])) {
+				$value = $value[$idx];
+			} else {
+				return null;
 			}
 		}
-		return null;
+		return $value;
 	}
 
 	public function offsetExists($offset) {

@@ -15,22 +15,22 @@ use Exception;
  * This class encapsulates expression evaluation for a conditional clause of a
  * {@link ConditionalBlock}.
  *
- *	 NOTE: There is a known issue that using any of the operators, or the words
- *				 'and' or 'or' as comparison values will not behave as expected.
+ * NOTE: There is a known issue that using any of the operators, or the words
+ *       'and' or 'or' as comparison values will not behave as expected.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
 class ConditionalExpression
 {
 
+	const NAME_RE = '/(\w+)(?:\[([\w[\]]+)\])*/';
+	const COND_RE = '/\s*([\w[\]]+|\d+|\'.*\'|".*")(?:\s+(?:(?:(=|>|>=|<|<=|!=)\s+([\w[\]]+|\d+|\'.*?\'|".*?"))|(ISSET|ISNOTSET))(?:\s+(or|and)\s+(.+))?)?/i';
+
 	/* Whether or not the class has been statically constructed. */
 	private static $initialized = false;
 
-	/*
-	 * Non-capturing regular expression for all supported operators. Any
-	 * strings matched by this regexp must have a matching entry in opEvaluators.
-	 */
-	private static $ops = '(?:=|>|>=|<|<=|!=|ISSET|ISNOTSET)';
+	/* Regular expression for parsing a condition */
+	private static $COND_RE;
 
 	private static $opEvaluators;
 
@@ -89,7 +89,10 @@ class ConditionalExpression
 	 * @return boolean
 	 */
 	public static function isValidOperator($op) {
-		return preg_match('/' . self::$ops . '/', trim($op));
+		if (!self::$initialized) {
+			self::initialize();
+		}
+		return array_key_exists($op, self::$opEvaluators);
 	}
 
 	/*
@@ -98,7 +101,7 @@ class ConditionalExpression
 	 * ===========================================================================
 	 */
 
-	private $conditions;
+	private $conditions = [];
 
 	/**
 	 * Create a new ConditionalExpression.
@@ -110,43 +113,73 @@ class ConditionalExpression
 			self::initialize();
 		}
 
-		$ops = self::$ops;
-		$varRe = '[[:alnum:]_-]+(?:\[[[:alnum:]_-]+\])?';
-		$logicRe = "\s*($varRe\s*(?:$ops\s*$varRe)?)\s+(or|and)\s+(.*)\s*";
-
-		$curGroup = array();
+		$curGroup = [];
 
 		$exp = $expression;
 		while ($exp !== null) {
-			$matches = array();
-			if (preg_match("/$logicRe/", $exp, $matches)) {
-				$comp = trim($matches[1]);
-				$logic = trim($matches[2]);
-				$exp = trim($matches[3]);
+			$matches = [];
+			if (preg_match(self::COND_RE, $exp, $matches)) {
+				$lhs = $matches[1];
+				$op = null;
+				$rhs = null;
+				if (
+					isset($matches[2]) && $matches[2] !== '' &&
+					isset($matches[3]) && $matches[3] !== ''
+				) {
+					// Binary operator
+					$op = $matches[2];
+					$rhs = $matches[3];
+					if (!$rhs) {
+					}
+				} else if (!empty($matches[4])) {
+					// Unary operator
+					$op = $matches[4];
+				}
+				$op = strtoupper($op);
 
-				$cond = $this->buildCondition($comp);
+				if (!empty($matches[5])) {
+					$logic = strtolower($matches[5]);
+					$exp = $matches[6];
+				} else {
+					// No more expressions to parse
+					$logic = null;
+					$exp = null;
+				}
 
+				$curGroup[] = $this->buildCondition($lhs, $op, $rhs);
+				if ($logic === 'and') {
+					$this->conditions[] = $curGroup;
+					$curGroup = [];
+				}
 			} else {
-				$cond = $this->buildCondition($exp);
-				$logic = null;
-				$exp = null;
-			}
-
-			$curGroup[] = $cond;
-			if ($logic === 'and') {
-				$this->conditions[] = $curGroup;
-				$curGroup = array();
+				throw new InvalidConditionalExpressionException($expression);
 			}
 		}
 		$this->conditions[] = $curGroup;
 	}
 
 	public function __toString() {
-		$ands = array();
+		$ands = [];
 		foreach ($this->conditions as $conditionGroup) {
-			$ors = array();
+			$ors = [];
 			foreach ($conditionGroup as $condition) {
-				$ors[] = "$condition[name] $condition[op] $condition[val]";
+				if ($condition['lhs']['type'] === 'var') {
+					$or = $condition['lhs']['val']['name'] . '[' . implode('][', $condition['lhs']['val']['indexes']) . ']';
+				} else {
+					$or = $condition['lhs']['val'];
+				}
+
+				if ($condition['op']) {
+					$or .= " $condition[op]";
+					if ($condition['rhs'] !== null) {
+						if ($condition['rhs']['type'] === 'var') {
+							$or .= $condition['rhs']['val']['name'] . '[' . implode('][', $condition['rhs']['val']['indexes']) . ']';
+						} else {
+							$or .= $condition['rhs']['val'];
+						}
+					}
+				}
+				$ors[] = $or;
 			}
 			$ands[] = implode(' OR ', $ors);
 		}
@@ -157,7 +190,7 @@ class ConditionalExpression
 	 * Determines whether or not the encapsulated expression evaluates to true for
 	 * the given set of values.
 	 *
-	 * @param Array $values Set of substitution values.
+	 * @param array $values Set of substitution values.
 	 * @return boolean
 	 */
 	public function isSatisfiedBy($values) {
@@ -173,19 +206,37 @@ class ConditionalExpression
 		foreach ($this->conditions as $group) {
 			$groupSatisfied = false;
 			foreach ($group as $cond) {
-				$val = $values->getValue($cond['name']);
-
-				if ($cond['val'] === null) {
-					// Note the use of weak equality operator here.
-					if ($val == true) {
-						$groupSatisfied = true;
-						break;
-					}
+				if ($cond['lhs']['type'] === 'var') {
+					$lhs = $values->getValue(
+						$cond['lhs']['val']['name'],
+						$cond['lhs']['val']['indexes']
+					);
 				} else {
+					$lhs = $cond['lhs']['val'];
+				}
+
+				$rhs = null;
+				if ($cond['rhs']) {
+					if ($cond['rhs']['type'] === 'var') {
+						$rhs = $values->getValue(
+							$cond['rhs']['val']['name'],
+							$cond['rhs']['val']['indexes']
+						);
+					} else {
+						$rhs = $cond['rhs']['val'];
+					}
+				}
+
+				if ($cond['op']) {
 					$fn = self::$opEvaluators[$cond['op']];
-					if ($fn($val, $cond['val'])) {
+					if ($fn($lhs, $rhs)) {
 						$groupSatisfied = true;
 						return true;
+					}
+				} else {
+					if ($lhs == true) {
+						$groupSatisfied = true;
+						break;
 					}
 				}
 			}
@@ -198,33 +249,41 @@ class ConditionalExpression
 		return true;
 	}
 
-	private function buildCondition($exp) {
-		$ops = self::$ops;
-
-		$matches = array();
-		if (preg_match("/\s*(.+)\s*($ops)\s*(.*)\s*/", $exp, $matches)) {
-			$name = trim($matches[1]);
-			$op = trim($matches[2]);
-			$val = trim($matches[3]);
-		} else {
-			$name = $exp;
-			$op = null;
-			$val = null;
+	private function buildCondition($lhs, $op, $rhs) {
+		$lhs = $this->parseOperand($lhs);
+		if ($rhs !== '' && $rhs !== null) {
+			$rhs = $this->parseOperand($rhs);
 		}
 
+		return [ 'lhs' => $lhs, 'op' => $op, 'rhs' => $rhs ];
+	}
+
+	private function parseOperand($val) {
 		if (is_numeric($val)) {
+			$type = 'number';
 			$val = (float) $val;
 
 			if ((int) $val == $val) {
 				$val = (int) $val;
 			}
+		} else if (preg_match('/^(\'|")(.+)\1$/', $val, $matches)) {
+			$type = 'string';
+			$val = $matches[2];
+		} else if (preg_match(self::NAME_RE, $val, $matches)) {
+			$type = 'var';
+
+			$name = $matches[1];
+			$indexes = [];
+			if (isset($matches[2])) {
+				$indexes = explode('][', $matches[2]);
+			}
+			$val = [ 'name' => $name, 'indexes' => $indexes ];
+		} else {
+			// TODO Invalid operand
+			// throw new InvalidOperandException($val);
 		}
 
-		return array(
-			'name' => $name,
-			'op'	 => $op,
-			'val'  => $val
-		);
+		return [ 'type' => $type, 'val' => $val ];
 	}
 
 }
