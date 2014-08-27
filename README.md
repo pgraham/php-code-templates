@@ -17,11 +17,15 @@ To specify a spot in a template where a value is to be substituted, add a tag
 with the following grammar:
 
     SUBSTITUTION_TAG        <- '/*#' SUBSTITUTION_EXPRESSION '#*/'
-    SUBSTITUTION_EXPRESSION <- (FILTER_EXPRESSION('-' FILTER_EXPRESSION)*:)?VARIABLE_NAME
-    FILTER_EXPRESSION       <- [a-zA-Z]+ ('(' FILTER_PARAMETER (',' FILTER_PARAMETER)* ')')?
+    SUBSTITUTION_EXPRESSION <- (FILTER_EXPRESSION ('-' FILTER_EXPRESSION)* ':')?VARIABLE_NAME
+    FILTER_EXPRESSION       <- [a-zA-Z]+ ( '(' FILTER_PARAMETER (',' FILTER_PARAMETER)* ')' )?
     FILTER_PARAMETER        <- .+
     VARIABLE_NAME           <- [a-zA-Z]+ ('[' VARIABLE_INDEX ']')*
     VARIABLE_INDEX          <- [a-zA-Z]+
+
+Note that whitespace included between elements is for clarity only and should
+not be included when writing tags. The only exception to this is that any amount
+of whitespace can appear after the opening `/*#` and before the closing `#*/`.
 
 Examples:
 
