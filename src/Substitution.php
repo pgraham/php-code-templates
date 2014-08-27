@@ -9,6 +9,8 @@
  */
 namespace zpt\pct;
 
+use zpt\pct\expression\VariableName;
+
 /**
  * This class encapsulates base behaviour for inline tag substitutions.
  *
@@ -16,24 +18,18 @@ namespace zpt\pct;
  */
 class Substitution {
 
-	private $valueName;
-	private $indexes;
+	private $name;
 	private $filters;
 
-	public function __construct(
-		$valueName,
-		$indexes = [],
-		$filters = []
-	) {
-		$this->valueName = $valueName;
-		$this->indexes = $indexes;
+	public function __construct(VariableName $name, $filters = []) {
+		$this->name = $name;
 		$this->filters = $filters;
 	}
 
 	public function getValue(TemplateValues $values) {
-		$value = $values->getValue($this->valueName, $this->indexes);
+		$value = $values->getValue($this->name->getName(), $this->name->getIndexes());
 		if ($value === null) {
-			throw new UndefinedValueException($this->valueName);
+			throw new UndefinedValueException($this->name->__toString());
 		}
 
 		foreach ($this->filters as list($fn, $params)) {

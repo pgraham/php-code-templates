@@ -22,7 +22,7 @@ class TagParser {
 
 	const TAG_RE = '/\/\*#\s*(\S+)\s*#?\*\//';
 
-	const EXPR_RE = '/(?:(.+):)?(\w+)(?:\[([\w[\]]+)\])*/';
+	const EXPR_RE = '/(?:(.+):)?([\w[\]]+)/';
 
 	const FLTR_RE = '/(\w+)(?:\((.+)\))?/';
 
@@ -112,7 +112,6 @@ class TagParser {
 		$matches = [];
 
 		if (preg_match(self::EXPR_RE, $tag, $matches)) {
-			$name = $matches[2];
 
 			$filters = [];
 			if ($matches[1]) {
@@ -129,12 +128,8 @@ class TagParser {
 				}
 			}
 
-			$indexes = [];
-			if (isset($matches[3])) {
-				$indexes = explode('][', $matches[3]);
-			}
-
-			return new Substitution($name, $indexes, $filters);
+			$name = VariableNameParser::parse($matches[2]);
+			return new Substitution($name, $filters);
 		}
 	}
 }
