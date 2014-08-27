@@ -9,6 +9,7 @@
  */
 namespace zpt\pct;
 
+use zpt\pct\parser\VariableNameParser;
 use Exception;
 
 /**
@@ -269,15 +270,9 @@ class ConditionalExpression
 		} else if (preg_match('/^(\'|")(.+)\1$/', $val, $matches)) {
 			$type = 'string';
 			$val = $matches[2];
-		} else if (preg_match(self::NAME_RE, $val, $matches)) {
+		} else if ($varName = VariableNameParser::parse($val)) {
 			$type = 'var';
-
-			$name = $matches[1];
-			$indexes = [];
-			if (isset($matches[2])) {
-				$indexes = explode('][', $matches[2]);
-			}
-			$val = [ 'name' => $name, 'indexes' => $indexes ];
+			$val = $varName;
 		} else {
 			// TODO Invalid operand
 			// throw new InvalidOperandException($val);
