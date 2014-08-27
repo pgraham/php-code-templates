@@ -48,7 +48,7 @@ There are a number of predefined filters for outputting substitution values.
  -  _join(glue)_ Join all of the values of an array using `glue` and output the
     result.
  -  _php_ Output the substitution value using
-    (http://php.net/manual/en/function.var-export.php)[var_export].
+    [var_export](http://php.net/manual/en/function.var-export.php).
  -  _xml_ Output the substitution with encoded XML entities. Note that this will
     not serialize an array or object as XML.
 
@@ -81,7 +81,7 @@ When a comparision is defined as a single `OPERAND` without an operator, the
 boolean value of the resolved operand will be used to resolve the
 `IF_EXPRESSION`.
 
-* as defined by (http://php.net/manual/en/function.is-numeric.php)[is_numeric]
+* as defined by [is_numeric](http://php.net/manual/en/function.is-numeric.php).
 
 Example:
 
