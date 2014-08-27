@@ -165,7 +165,7 @@ class ConditionalExpression
 			$ors = [];
 			foreach ($conditionGroup as $condition) {
 				if ($condition['lhs']['type'] === 'var') {
-					$or = $condition['lhs']['val']['name'] . '[' . implode('][', $condition['lhs']['val']['indexes']) . ']';
+					$or = (string) $condition['lhs']['val'];
 				} else {
 					$or = $condition['lhs']['val'];
 				}
@@ -174,7 +174,7 @@ class ConditionalExpression
 					$or .= " $condition[op]";
 					if ($condition['rhs'] !== null) {
 						if ($condition['rhs']['type'] === 'var') {
-							$or .= $condition['rhs']['val']['name'] . '[' . implode('][', $condition['rhs']['val']['indexes']) . ']';
+							$or .= (string) $condition['rhs']['val'];
 						} else {
 							$or .= $condition['rhs']['val'];
 						}
@@ -209,8 +209,8 @@ class ConditionalExpression
 			foreach ($group as $cond) {
 				if ($cond['lhs']['type'] === 'var') {
 					$lhs = $values->getValue(
-						$cond['lhs']['val']['name'],
-						$cond['lhs']['val']['indexes']
+						$cond['lhs']['val']->getName(),
+						$cond['lhs']['val']->getIndexes()
 					);
 				} else {
 					$lhs = $cond['lhs']['val'];
@@ -220,8 +220,8 @@ class ConditionalExpression
 				if ($cond['rhs']) {
 					if ($cond['rhs']['type'] === 'var') {
 						$rhs = $values->getValue(
-							$cond['rhs']['val']['name'],
-							$cond['rhs']['val']['indexes']
+							$cond['rhs']['val']->getName(),
+							$cond['rhs']['val']->getIndexes()
 						);
 					} else {
 						$rhs = $cond['rhs']['val'];

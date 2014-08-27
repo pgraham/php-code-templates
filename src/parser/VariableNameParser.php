@@ -9,6 +9,8 @@
  */
 namespace zpt\pct\parser;
 
+use zpt\pct\expression\VariableName;
+
 /**
  * Parser for variable names.
  *
@@ -26,7 +28,7 @@ class VariableNameParser
 			if (isset($matches[2])) {
 				$indexes = explode('][', $matches[2]);
 			}
-			return [ 'name' => $name, 'indexes' => $indexes ];
+			return new VariableName($name, $indexes);
 		}
 		return null;
 	}
