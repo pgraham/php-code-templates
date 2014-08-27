@@ -27,7 +27,7 @@ class Substitution {
 	}
 
 	public function getValue(TemplateValues $values) {
-		$value = $values->getValue($this->name->getName(), $this->name->getIndexes());
+		$value = $values->getValue($this->name);
 		if ($value === null) {
 			throw new UndefinedValueException($this->name->__toString());
 		}

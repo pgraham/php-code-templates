@@ -9,6 +9,7 @@
  */
 namespace zpt\pct;
 
+use zpt\pct\expression\VariableName;
 use ArrayAccess;
 
 /**
@@ -30,12 +31,14 @@ class TemplateValues implements ArrayAccess
 		$this->values = $values;
 	}
 
-	public function getValue($name, array $indexes = []) {
+	public function getValue(VariableName $var) {
+		$name = $var->getName();
 		if (!isset($this->values[$name])) {
 			return null;
 		}
 
 		$value = $this->values[$name];
+		$indexes = $var->getIndexes();
 		foreach ($indexes as $idx) {
 			if (is_array($value) && isset($value[$idx])) {
 				$value = $value[$idx];

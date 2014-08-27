@@ -208,10 +208,7 @@ class ConditionalExpression
 			$groupSatisfied = false;
 			foreach ($group as $cond) {
 				if ($cond['lhs']['type'] === 'var') {
-					$lhs = $values->getValue(
-						$cond['lhs']['val']->getName(),
-						$cond['lhs']['val']->getIndexes()
-					);
+					$lhs = $values->getValue($cond['lhs']['val']);
 				} else {
 					$lhs = $cond['lhs']['val'];
 				}
@@ -219,10 +216,7 @@ class ConditionalExpression
 				$rhs = null;
 				if ($cond['rhs']) {
 					if ($cond['rhs']['type'] === 'var') {
-						$rhs = $values->getValue(
-							$cond['rhs']['val']->getName(),
-							$cond['rhs']['val']->getIndexes()
-						);
+						$rhs = $values->getValue($cond['rhs']['val']);
 					} else {
 						$rhs = $cond['rhs']['val'];
 					}

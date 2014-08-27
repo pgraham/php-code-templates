@@ -52,7 +52,7 @@ class EachBlock extends CompositeBlock {
 	 * @return string The resolved code block for the given substitution values.
 	 */
 	public function forValues($values) {
-		$itr = $values->getValue($this->name->getName(), $this->name->getIndexes());
+		$itr = $values->getValue($this->name);
 		if ($itr === null) {
 			throw new UndefinedValueException($this->name->__toString());
 		}
