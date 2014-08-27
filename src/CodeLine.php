@@ -14,7 +14,7 @@
  */
 namespace zpt\pct;
 
-use zpt\pct\tags\TagParser;
+use zpt\pct\parser\TagParser;
 
 /**
  * This class encapsulates a line of code to be output when performing value

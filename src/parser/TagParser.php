@@ -7,7 +7,7 @@
  * information please view the LICENSE file that was distributed with this
  * source code.
  */
-namespace zpt\pct\tags;
+namespace zpt\pct\parser;
 
 use zpt\pct\MissingFilterExpressionArgumentException;
 use zpt\pct\Substitution;
