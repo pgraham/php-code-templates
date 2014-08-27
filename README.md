@@ -112,7 +112,7 @@ Example:
 
 The example for the if block could be rewritten as:
 
-    #{ switch
+    #{ switch var[type]
     #| case 'list'
         // Handle a list
     #| case 'map'
