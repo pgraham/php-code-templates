@@ -144,11 +144,11 @@ model classes in the [Clarinet ORM Project](https://github.com/pgraham/Clarinet)
 <https://github.com/pgraham/Clarinet/blob/master/src/persister/persister.tmlp.php>
 
 ```php
-class /*# actor */ {
+class /*# actor #*/ {
 
     // ...
 
-    public function create(\/*# class */ $model) {
+    public function create(\/*# class #*/ $model) {
 
       if (!$this->validator->validate($model, $e)) {
         throw $e;
@@ -170,15 +170,15 @@ class /*# actor */ {
         $params = Array();
         #{ each properties as prop
           #{ if prop[type] = boolean
-            $params['/*# prop[col] */'] = $model->get/*# prop[name] */() ? 1 : 0;
+            $params['/*# prop[col] #*/'] = $model->get/*# prop[name] #*/() ? 1 : 0;
           #{ else
-            $params['/*# prop[col] */'] = $model->get/*# prop[name] */();
+            $params['/*# prop[col] #*/'] = $model->get/*# prop[name] #*/();
           #}
         #}
 
         #{ each relationships as rel
           #{ if rel[type] = many-to-one
-            // Populate /*# rel[rhs] */ parameter --------------------------------
+            // Populate /*# rel[rhs] #*/ parameter --------------------------------
             // ...
             // -------------------------------------------------------------------
           #}
@@ -191,14 +191,14 @@ class /*# actor */ {
         $this->_cache[$id] = $model;
 
         #{ each collections as col
-          $this->insertCollection_/*# col[property] */(
+          $this->insertCollection_/*# col[property] #*/(
             $id,
-            $model->get/*# col[property] */()
+            $model->get/*# col[property] #*/()
           );
         #}
 
         #{ each relationships as rel
-          $related = $model->get/*# rel[lhsProperty] */();
+          $related = $model->get/*# rel[lhsProperty] #*/();
           #{ if rel[type] = many-to-many
             // ...
 
@@ -220,7 +220,7 @@ class /*# actor */ {
         $this->_pdo->rollback();
         $model->set/*# id_property */(null);
 
-        $e = new PdoExceptionWrapper($e, '/*# class */');
+        $e = new PdoExceptionWrapper($e, '/*# class #*/');
         $e->setSql($sql, $params);
         throw $e;
       }
