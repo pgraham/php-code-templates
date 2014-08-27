@@ -34,14 +34,13 @@ class EachBlock extends CompositeBlock {
 	public function __construct($expression, $lineNum) {
 		parent::__construct($lineNum);
 
-		$parts = preg_split('/ as /i', $expression, 2);
+		$parts = preg_split('/\s+as\s+/i', $expression, 2);
 		if (count($parts) !== 2) {
-			throw new SubstitutionException(
-				'Each block expression must be in the form ${each:<array> as <var>}',
-				$this->lineNum);
+			// TODO This should be a parse exception
+			throw new SubstitutionException($lineNum);
 		}
 
-		$this->name = trim($parts[0]);
+		$this->name = VariableNameParser::parse(trim($parts[0]));
 		$this->alias = trim($parts[1]);
 	}
 
@@ -53,9 +52,9 @@ class EachBlock extends CompositeBlock {
 	 * @return string The resolved code block for the given substitution values.
 	 */
 	public function forValues($values) {
-		$itr = $values->getValue($this->name);
+		$itr = $values->getValue($this->name->getName(), $this->name->getIndexes());
 		if ($itr === null) {
-			throw new UndefinedValueException($this->name);
+			throw new UndefinedValueException($this->name->__toString());
 		}
 
 		if (!is_array($itr)) {
