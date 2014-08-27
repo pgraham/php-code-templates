@@ -81,7 +81,7 @@ When a comparision is defined as a single `OPERAND` without an operator, the
 boolean value of the resolved operand will be used to resolve the
 `IF_EXPRESSION`.
 
-* as defined by [is_numeric](http://php.net/manual/en/function.is-numeric.php).
+\* as defined by [is_numeric](http://php.net/manual/en/function.is-numeric.php).
 
 Example:
 
