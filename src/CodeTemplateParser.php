@@ -11,6 +11,7 @@ namespace zpt\pct;
 
 use zpt\pct\exception\ParseException;
 use zpt\pct\exception\StructureException;
+use zpt\pct\parser\TagParser;
 
 /**
  * This class parses a code template into a object structure appropriate for
@@ -37,6 +38,12 @@ class CodeTemplateParser {
 	 * TODO Detect template indentation
 	 */
 	private $indentString = '  ';
+
+	private $tagParser;
+
+	public function __construct() {
+		$this->tagParser = new TagParser();
+	}
 
 	/**
 	 * Parse the given code and populate the given CodeTemplate.
@@ -147,7 +154,8 @@ class CodeTemplateParser {
 						$headBlock->addBlock($curBlock);
 					}
 
-					$codeLine = new CodeLine($line, $lineNum);
+					$tags = $this->tagParser->parse($line);
+					$codeLine = new CodeLine($tags, $line, $lineNum);
 
 					$indent = $this->parseIndent($line) - count($blockStack) + 1;
 					$codeLine->setIndent($indent);

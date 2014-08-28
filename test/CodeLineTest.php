@@ -16,6 +16,8 @@ namespace zpt\pct;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
+use zpt\pct\parser\TagParser;
+
 require_once __DIR__ . '/test-common.php';
 
 /**
@@ -24,6 +26,12 @@ require_once __DIR__ . '/test-common.php';
  * @author Philip Graham <philip@zeptech.ca>
  */
 class CodeLineTest extends TestCase {
+
+  private $tagParser;
+
+  protected function setup() {
+    $this->tagParser = new TagParser();
+  }
 
   public function testSingleTagSubstitution() {
     $data = array(
@@ -34,7 +42,8 @@ class CodeLineTest extends TestCase {
     );
 
     foreach ($data AS $test) {
-      $codeLine = new CodeLine($test[0], 1);
+      $tags = $this->tagParser->parse($test[0]);
+      $codeLine = new CodeLine($tags, $test[0], 1);
       $expected = $test[1];
       $actual = $codeLine->forValues(new TemplateValues(array('sub' => 'val')));
 
@@ -56,7 +65,8 @@ class CodeLineTest extends TestCase {
     );
 
     foreach ($data AS $test) {
-      $codeLine = new CodeLine($test[0], 1);
+      $tags = $this->tagParser->parse($test[0]);
+      $codeLine = new CodeLine($tags, $test[0], 1);
       $expected = $test[1];
       $actual = $codeLine->forValues(new TemplateValues(array(
         'sub1' => 'val1',
@@ -68,7 +78,9 @@ class CodeLineTest extends TestCase {
   }
 
   public function testJsonSubstitution() {
-    $codeLine = new CodeLine('/*# json:json */', 1);
+    $line = '/*# json:json */';
+    $tags = $this->tagParser->parse($line);
+    $codeLine = new CodeLine($tags, $line, 1);
 
     $expected = '{"key1":"val1","key2":[1,2,3]}';
     $actual = $codeLine->forValues(new TemplateValues(array(
@@ -82,7 +94,9 @@ class CodeLineTest extends TestCase {
   }
 
   public function testXmlSubstitution() {
-    $codeLine = new CodeLine('/*# xml:data #*/', 1);
+    $line = '/*# xml:data #*/';
+    $tags = $this->tagParser->parse($line);
+    $codeLine = new CodeLine($tags, $line, 1);
 
     $expected = 'I like to eat &lt;apples&gt; &amp; &quot;bananas&quot;';
     $actual = $codeLine->forValues(new TemplateValues(array(
@@ -93,7 +107,9 @@ class CodeLineTest extends TestCase {
   }
 
   public function testJoinSubstitution() {
-    $codeLine = new CodeLine('/*# join(,):join */', 1);
+    $line = '/*# join(,):join */';
+    $tags = $this->tagParser->parse($line);
+    $codeLine = new CodeLine($tags, $line, 1);
 
     $expected = 'val1,val2,val3';
     $actual = $codeLine->forValues(new TemplateValues(array(
@@ -104,7 +120,9 @@ class CodeLineTest extends TestCase {
   }
 
   public function testJoinNotArray() {
-    $codeLine = new CodeLine('/*# join(,):join */', 1);
+    $line = '/*# join(,):join */';
+    $tags = $this->tagParser->parse($line);
+    $codeLine = new CodeLine($tags, $line, 1);
 
     try {
       $codeLine->forValues(new TemplateValues(array(
@@ -116,7 +134,9 @@ class CodeLineTest extends TestCase {
   }
 
   public function testMirrorTagSyntax() {
-    $codeLine = new CodeLine('/*# valname #*/', 1);
+    $line = '/*# valname #*/';
+    $tags = $this->tagParser->parse($line);
+    $codeLine = new CodeLine($tags, $line, 1);
 
     $expected = 'a_value';
     $actual = $codeLine->forValues(new TemplateValues(array(
@@ -127,7 +147,9 @@ class CodeLineTest extends TestCase {
   }
 
   public function testSimpleArrayTag() {
-    $codeLine = new CodeLine('/*# ar[val] #*/', 1);
+    $line = '/*# ar[val] #*/';
+    $tags = $this->tagParser->parse($line);
+    $codeLine = new CodeLine($tags, $line, 1);
 
     $expected = 'a_value';
     $actual = $codeLine->forValues(new TemplateValues([
@@ -138,7 +160,9 @@ class CodeLineTest extends TestCase {
   }
 
   public function testNestedArrayTag() {
-    $codeLine = new CodeLine('/*# ar[nested][val] #*/', 1);
+    $line = '/*# ar[nested][val] #*/';
+    $tags = $this->tagParser->parse($line);
+    $codeLine = new CodeLine($tags, $line, 1);
 
     $expected = 'a_value';
     $actual = $codeLine->forValues(new TemplateValues([

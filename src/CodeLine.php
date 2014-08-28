@@ -9,8 +9,6 @@
  */
 namespace zpt\pct;
 
-use zpt\pct\parser\TagParser;
-
 /**
  * This class encapsulates a line of code to be output when performing value
  * substitution on a template.	Actual output and number of times it is output
@@ -54,12 +52,6 @@ class CodeLine
 	 */
 	public function forValues(TemplateValues $values)
 	{
-		// Only parse tags once and only if the line is actually output
-		if ($this->tags === null) {
-			$tagParser = new TagParser();
-			$this->tags = $tagParser->parse($this->line);
-		}
-
 		$search = array();
 		$replace = array();
 		foreach ($this->tags as $key => $tag) {
