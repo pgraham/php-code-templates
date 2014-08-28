@@ -9,6 +9,9 @@
  */
 namespace zpt\pct;
 
+use zpt\pct\exception\SwitchCaseAfterDefaultException;
+use zpt\pct\exception\SwitchCodeNotInCaseException;
+use zpt\pct\exception\SwitchDefaultFirstException;
 use LogicException;
 
 /**
@@ -35,16 +38,13 @@ class SwitchBlock implements Block
 		} elseif (!empty($this->cases)) {
 			end($this->cases)->addBlock($block);
 		} else {
-		  $msg = "Code blocks cannot appear inside a switch before the first "
-			   . "case statement";
-		  throw new LogicException($msg);
+		  throw new SwitchCodeNotInCaseException();
 		}
 	}
 
 	public function addCase($expression, $lineNum) {
 		if ($this->default !== null) {
-			$msg = "Default case must be the last switch case.";
-			throw new LogicException($msg);
+			throw new SwitchCaseAfterDefaultException();
 		}
 
 		$parts = explode(' ', $expression);
@@ -63,8 +63,7 @@ class SwitchBlock implements Block
 
 	public function setDefault($lineNum) {
 		if (empty($this->cases)) {
-			$msg = "Default case cannot be the first switch case.";
-			throw new LogicException($msg);
+			throw new SwitchDefaultFirstException();
 		}
 		$this->default = new ConditionalBlock(null, $lineNum);
 		end($this->cases)->setElse($this->default);

@@ -11,6 +11,8 @@ namespace zpt\pct;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
+use zpt\pct\exception\ParseException;
+
 require_once __DIR__ . '/test-common.php';
 
 /**
@@ -31,6 +33,44 @@ class SyntaxText extends TestCase
 <?php
 $msg = "This template contains a case statement without a switch statement";
 #| case 0
+TMPL;
+
+	private $defaultWithoutSwitch = <<<'TMPL'
+<?php
+$msg = "This template contains a default statement without a switch statement";
+#| default
+TMPL;
+
+	private $switchCodeBeforeCase = <<<'TMPL'
+<?php
+$msg = "This template contains a switch statement with code appearing before the
+first case statement.";
+#{ switch var 
+ doSomething(/*# some_param #*/);
+#| case < 0
+ doSomethingWhenVarIsLessThenZero(); 
+#}
+TMPL;
+
+	private $switchCaseAfterDefault = <<<'TMPL'
+<?php
+$msg = "This template contains a switch statement with a case after default.";
+#{ switch var
+#| case < 0
+  doSomething(/*# var #*/);
+#| default
+  doDefault();
+#| case > 0
+  doSomethingElse(/*# var #*/);
+#}
+TMPL;
+	private $switchDefaultFirst = <<<'TMPL'
+<?php
+$msg = "This template contains a switch statement with the default case first.";
+#{ switch var
+#| default
+  doTheDefaultThing();
+#}
 TMPL;
 
 	private $undefinedSubstitutionValue = <<<'TMPL'
@@ -60,11 +100,69 @@ TMPL;
 		$this->parser = new CodeTemplateParser();
 	}
 
-	/**
-	 * @expectedException zpt\pct\exception\ParseException
-	 */
 	public function testCaseWithoutSwitch() {
-		$this->parser->parse($this->caseWithoutSwitch);
+		try {
+			$this->parser->parse($this->caseWithoutSwitch);
+			$this->fail("Expected a ParseException");
+		} catch (ParseException $e) {
+			$previous = $e->getPrevious();
+			$this->assertInstanceOf(
+				'zpt\pct\exception\UnexpectedCaseException',
+				$previous
+			);
+		}
+	}
+
+	public function testDefaultWithoutSwitch() {
+		try {
+			$this->parser->parse($this->defaultWithoutSwitch);
+			$this->fail("Expected a ParseException");
+		} catch (ParseException $e) {
+			$previous = $e->getPrevious();
+			$this->assertInstanceOf(
+				'zpt\pct\exception\UnexpectedDefaultException',
+				$previous
+			);
+		}
+	}
+
+	public function testSwitchCodeBeforeCase() {
+		try {
+			$this->parser->parse($this->switchCodeBeforeCase);
+			$this->fail("Expected a ParseException");
+		} catch (ParseException $e) {
+			$previous = $e->getPrevious();
+			$this->assertInstanceOf(
+				'zpt\pct\exception\SwitchCodeNotInCaseException',
+				$previous
+			);
+		}
+	}
+
+	public function testSwitchCaseAfterDefault() {
+		try {
+			$this->parser->parse($this->switchCaseAfterDefault);
+			$this->fail("Expected a ParseException");
+		} catch (ParseException $e) {
+			$previous = $e->getPrevious();
+			$this->assertInstanceOf(
+				'zpt\pct\exception\SwitchCaseAfterDefaultException',
+				$previous
+			);
+		}
+	}
+
+	public function testSwitchDefaultFirst() {
+		try {
+			$this->parser->parse($this->switchDefaultFirst);
+			$this->fail("Expected a ParseException");
+		} catch (ParseException $e) {
+			$previous = $e->getPrevious();
+			$this->assertInstanceOf(
+				'zpt\pct\exception\SwitchDefaultFirstException',
+				$previous
+			);
+		}
 	}
 
 	public function testUndefinedSubstitutionValue() {
@@ -80,11 +178,17 @@ TMPL;
 		}
 	}
 
-	/**
-	 * @expectedException zpt\pct\exception\ParseException
-	 */
 	public function testUnclosedBlock() {
-		$this->parser->parse($this->unclosedBlock);
+		try {
+			$this->parser->parse($this->unclosedBlock);
+			$this->fail("Expected a ParseException");
+		} catch (ParseException $e) {
+			$previous = $e->getPrevious();
+			$this->assertInstanceOf(
+				'zpt\pct\exception\UnclosedBlockException',
+				$previous
+			);
+		}
 	}
 
 }

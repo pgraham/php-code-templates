@@ -10,6 +10,9 @@
 namespace zpt\pct;
 
 use zpt\pct\exception\ParseException;
+use zpt\pct\exception\UnclosedBlockException;
+use zpt\pct\exception\UnexpectedCaseException;
+use zpt\pct\exception\UnexpectedDefaultException;
 use zpt\pct\parser\TagParser;
 use LogicException;
 
@@ -118,8 +121,7 @@ class CodeTemplateParser {
 						$headBlock->addCase($matches[1], $lineNum);
 						$curBlock = null;
 					} else {
-						$msg = "Case statements must appear within a switch block.";
-						throw new LogicException($msg);
+						throw new UnexpectedCaseException();
 					}
 
 				} else if (preg_match(self::DEFAULT_RE, $line)) {
@@ -128,8 +130,7 @@ class CodeTemplateParser {
 						$headBlock->setDefault($lineNum);
 						$curBlock = null;
 					} else {
-						$msg = "Default statements must appear within a switch block.";
-						throw new LogicException($msg);
+						throw new UnexpectedDefaultException();
 					}
 
 				} else if (preg_match(self::EACH_RE, $line, $matches)) {
@@ -165,8 +166,7 @@ class CodeTemplateParser {
 			}
 
 			if (count($blockStack) > 1) {
-				$msg = "Unclosed template block";
-				throw new LogicException($msg);
+				throw new UnclosedBlockException();
 			}
 		} catch (LogicException $e) {
 			throw new ParseException($templatePath, $lineNum, $e);
