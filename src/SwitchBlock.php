@@ -9,7 +9,7 @@
  */
 namespace zpt\pct;
 
-use zpt\pct\exception\StructureException;
+use LogicException;
 
 /**
  * CompositeBlock for switch statments.
@@ -37,14 +37,14 @@ class SwitchBlock implements Block
 		} else {
 		  $msg = "Code blocks cannot appear inside a switch before the first "
 			   . "case statement";
-		  throw new StructureException($msg);
+		  throw new LogicException($msg);
 		}
 	}
 
 	public function addCase($expression, $lineNum) {
 		if ($this->default !== null) {
 			$msg = "Default case must be the last switch case.";
-			throw new StructureException($msg);
+			throw new LogicException($msg);
 		}
 
 		$parts = explode(' ', $expression);
@@ -64,7 +64,7 @@ class SwitchBlock implements Block
 	public function setDefault($lineNum) {
 		if (empty($this->cases)) {
 			$msg = "Default case cannot be the first switch case.";
-			throw new StructureException($msg);
+			throw new LogicException($msg);
 		}
 		$this->default = new ConditionalBlock(null, $lineNum);
 		end($this->cases)->setElse($this->default);

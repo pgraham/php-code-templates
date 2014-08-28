@@ -10,8 +10,8 @@
 namespace zpt\pct;
 
 use zpt\pct\exception\ParseException;
-use zpt\pct\exception\StructureException;
 use zpt\pct\parser\TagParser;
+use LogicException;
 
 /**
  * This class parses a code template into a object structure appropriate for
@@ -119,7 +119,7 @@ class CodeTemplateParser {
 						$curBlock = null;
 					} else {
 						$msg = "Case statements must appear within a switch block.";
-						throw new StructureException($msg);
+						throw new LogicException($msg);
 					}
 
 				} else if (preg_match(self::DEFAULT_RE, $line)) {
@@ -129,7 +129,7 @@ class CodeTemplateParser {
 						$curBlock = null;
 					} else {
 						$msg = "Default statements must appear within a switch block.";
-						throw new StructureException($msg);
+						throw new LogicException($msg);
 					}
 
 				} else if (preg_match(self::EACH_RE, $line, $matches)) {
@@ -166,9 +166,9 @@ class CodeTemplateParser {
 
 			if (count($blockStack) > 1) {
 				$msg = "Unclosed template block";
-				throw new StructureException($msg);
+				throw new LogicException($msg);
 			}
-		} catch (StructureException $e) {
+		} catch (LogicException $e) {
 			throw new ParseException($templatePath, $lineNum, $e);
 		}
 
