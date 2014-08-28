@@ -31,14 +31,17 @@ class CodeLine
 	/**
 	 * Constructor.
 	 *
+	 * @param array $tags
+	 *   Parsed substitution tags for thr line
 	 * @param string $line
 	 *   The ensupsulated line of code.
 	 * @param int $lineNum
 	 *   The line number on which this line of code appears
 	 *   in it's source file.
 	 */
-	public function __construct($line, $lineNum)
+	public function __construct(array $tags, $line, $lineNum)
 	{
+		$this->tags = $tags;
 		$this->line = trim($line);
 		$this->lineNum = $lineNum;
 	}
