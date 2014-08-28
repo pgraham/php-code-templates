@@ -9,6 +9,8 @@
  */
 namespace zpt\pct;
 
+use zpt\pct\exception\StructureException;
+
 /**
  * CompositeBlock for switch statments.
  *

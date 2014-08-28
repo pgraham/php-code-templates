@@ -9,6 +9,7 @@
  */
 namespace zpt\pct;
 
+use zpt\pct\exception\InvalidConditionalExpressionException;
 use zpt\pct\parser\VariableNameParser;
 use Exception;
 

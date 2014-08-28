@@ -69,7 +69,7 @@ EXPT;
     }
 
     /**
-     * @expectedException zpt\pct\ParseException
+     * @expectedException zpt\pct\exception\ParseException
      */
     public function testCodeBeforeFirstCase()
     {

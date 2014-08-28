@@ -146,7 +146,6 @@ class CodeLineTest extends TestCase {
     ]));
 
     $this->assertEquals($expected, $actual);
-
   }
 
 }

@@ -65,7 +65,7 @@ TMPL;
   }
 
   /**
-   * @expectedException zpt\pct\ParseException
+   * @expectedException zpt\pct\exception\ParseException
    */
   public function testCaseWithoutSwitch() {
     $this->parser->parse($this->caseWithoutSwitch);
@@ -85,7 +85,7 @@ TMPL;
   }
 
   /**
-   * @expectedException zpt\pct\ParseException
+   * @expectedException zpt\pct\exception\ParseException
    */
   public function testUnclosedBlock() {
     $this->parser->parse($this->unclosedBlock);

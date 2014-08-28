@@ -12,17 +12,28 @@
  *
  * @license http://www.opensource.org/licenses/bsd-license.php
  */
-namespace zpt\pct;
+namespace zpt\pct\exception;
 
-use \Exception;
+use LogicException;
 
 /**
- * Exception thrown by composite blocks when an invalid nesting structure is
- * detected.  These Exceptions should be caught by the parser and translated
- * into a ParseException.
+ * Exception type for template parsing exceptions.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class StructureException extends Exception
+class ParseException extends LogicException
 {
+
+    private $templatePath;
+    private $lineNum;
+
+    public function __construct($templatePath, $lineNum, LogicException $cause)
+    {
+        $this->templatePath = $templatePath;
+        $this->lineNum = $lineNum;
+
+        $msg = "Error occured parsing $templatePath at line $lineNum";
+
+        parent::__construct($msg, 0, $cause);
+    }
 }

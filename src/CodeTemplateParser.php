@@ -14,6 +14,9 @@
  */
 namespace zpt\pct;
 
+use zpt\pct\exception\ParseException;
+use zpt\pct\exception\StructureException;
+
 /**
  * This class parses a code template into a object structure appropriate for
  * substitution.
@@ -110,7 +113,7 @@ class CodeTemplateParser {
             $curBlock = null;
           } else {
             $msg = "Case statements must appear within a switch block.";
-            throw new ParseException($msg, $templatePath, $lineNum, $line);
+            throw new StructureException($msg);
           }
 
         } else if (preg_match(self::DEFAULT_RE, $line)) {
@@ -120,7 +123,7 @@ class CodeTemplateParser {
             $curBlock = null;
           } else {
             $msg = "Default statements must appear within a switch block.";
-            throw new ParseException($msg, $templatePath, $lineNum, $line);
+            throw new StructureException($msg);
           }
 
         } else if (preg_match(self::EACH_RE, $line, $matches)) {
@@ -153,18 +156,13 @@ class CodeTemplateParser {
           $curBlock->addLine($codeLine);
         }
       }
-    } catch (StructureException $e) {
-      throw new ParseException(
-        $e->getMessage(),
-        $templatePath,
-        $lineNum,
-        $line
-      );
-    }
 
-    if (count($blockStack) > 1) {
-      $msg = "Unclosed template block";
-      throw new ParseException($msg, $templatePath, $lineNum, '');
+      if (count($blockStack) > 1) {
+        $msg = "Unclosed template block";
+        throw new StructureException($msg);
+      }
+    } catch (StructureException $e) {
+      throw new ParseException($templatePath, $lineNum, $e);
     }
 
     return $template;
