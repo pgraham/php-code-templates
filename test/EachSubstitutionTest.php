@@ -68,4 +68,77 @@ TMPL;
     $this->assertEquals($expected, $actual);
   }
 
+  public function testEachStatusIndex() {
+    $parser = new CodeTemplateParser();
+
+    $eachCtnt = <<<TMPL
+Iteration to follow:
+#{ each itr as i s
+  /*# php:s[index] #*/: /*# php:i #*/
+#}
+Post Iteration.
+TMPL;
+
+    $template = $parser->parse($eachCtnt);
+
+    $expected = "Iteration to follow:\n0: 1\n1: 2\nPost Iteration.";
+    $actual = $template->forValues(array( 'itr' => [ 1, 2 ] ));
+    $this->assertEquals($expected, $actual);
+
+  }
+
+  public function testEachStatusHasNext() {
+    $parser = new CodeTemplateParser();
+
+    $eachCtnt = <<<TMPL
+Iteration to follow:
+#{ each itr as i s
+  /*# php:s[has_next] #*/
+#}
+Post Iteration.
+TMPL;
+
+    $template = $parser->parse($eachCtnt);
+
+    $expected = "Iteration to follow:\ntrue\ntrue\nfalse\nPost Iteration.";
+    $actual = $template->forValues(array( 'itr' => [ 1, 2, 3 ] ));
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testEachStatusFirst() {
+    $parser = new CodeTemplateParser();
+
+    $eachCtnt = <<<TMPL
+Iteration to follow:
+#{ each itr as i s
+  /*# php:s[first] #*/
+#}
+Post Iteration.
+TMPL;
+
+    $template = $parser->parse($eachCtnt);
+
+    $expected = "Iteration to follow:\ntrue\nfalse\nfalse\nPost Iteration.";
+    $actual = $template->forValues(array( 'itr' => [ 1, 2, 3 ] ));
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testEachStatusLast() {
+    $parser = new CodeTemplateParser();
+
+    $eachCtnt = <<<TMPL
+Iteration to follow:
+#{ each itr as i s
+  /*# php:s[last] #*/
+#}
+Post Iteration.
+TMPL;
+
+    $template = $parser->parse($eachCtnt);
+
+    $expected = "Iteration to follow:\nfalse\nfalse\ntrue\nPost Iteration.";
+    $actual = $template->forValues(array( 'itr' => [ 1, 2, 3 ] ));
+    $this->assertEquals($expected, $actual);
+  }
+
 }

@@ -128,7 +128,7 @@ Switch cases do __NOT__ fall through.
 Repeating sections can be specified as follows:
 
 ```
-#{ each <var> as <name>
+#{ each <var> as <name> [<status>]
   <section>
 #}
 ```
@@ -136,6 +136,15 @@ Repeating sections can be specified as follows:
 `<var>` must refer to an array substitution value.  Within the repeated section,
 the current value of the array substitution value will be available for use by
 using the substitution value with name `<name>`
+
+If a name is provided for the `<status>` variable, it will be populated as an
+array containing the following information:
+
+ -  index: The current index of the iteration.
+ -  first: Whether or not the iteration is on the first element.
+ -  last: Whether or not the iteration is on the last element.
+ -  has_next: Whether or not the iteration has another element after the current
+    element.
 
 ### Example
 

@@ -21,6 +21,9 @@ class EachBlock extends CompositeBlock {
 	/* The name of the value as used in the code block */
 	private $alias;
 
+	/* The name of the value used to hold the status of the block */
+	private $status;
+
 	/* The name of the value to substitute into the block */
 	private $name;
 
@@ -40,8 +43,20 @@ class EachBlock extends CompositeBlock {
 			throw new SubstitutionException($lineNum);
 		}
 
-		$this->name = VariableNameParser::parse(trim($parts[0]));
-		$this->alias = trim($parts[1]);
+		$name = $parts[0];
+		$alias = $parts[1];
+
+		$aliasParts = preg_split('/\s+/', $alias);
+		$alias = $aliasParts[0];
+		if (count($aliasParts) > 1) {
+			$status = $aliasParts[1];
+		} else {
+			$status = null;
+		}
+
+		$this->name = VariableNameParser::parse(trim($name));
+		$this->alias = trim($alias);
+		$this->status = trim($status);
 	}
 
 	/**
@@ -68,11 +83,26 @@ class EachBlock extends CompositeBlock {
 		}
 
 		$eaches = array();
-		foreach ($itr as $val) {
+		foreach ($itr as $idx => $val) {
 			$values[$this->alias] = $val;
 
+			if ($this->status) {
+				$isFirst = $idx === 0;
+				$isLast = $idx >= count($itr) - 1;
+				$values[$this->status] = [
+					'index' => $idx,
+					'first' => $isFirst,
+					'last' => $isLast,
+					'has_next' => !$isLast,
+				];
+			}
+
 			$eaches[] = parent::forValues($values);
+
 			unset($values[$this->alias]);
+			if ($this->status) {
+				unset($values[$this->status]);
+			}
 		}
 
 		return implode("\n", $eaches);
